@@ -19,8 +19,9 @@ RUN apt-get update && apt-get install -y \
 RUN R -e "install.packages('rmarkdown', repos='http://cran.rstudio.com')"
 
 # Copia os arquivos necessários
-COPY /rscript/limpeza.r /app/limpeza.r
-COPY /backend/alunos_com_erros.csv /app/alunos_com_erros.csv
+COPY rscript/limpeza.r /app/limpeza.r
+COPY backend/alunos_com_erros.csv /app/alunos_com_erros.csv
+
 
 # Comando para rodar o script e manter o container ativo
 CMD ["bash", "-c", "Rscript /app/limpeza.r && tail -f /dev/null"]

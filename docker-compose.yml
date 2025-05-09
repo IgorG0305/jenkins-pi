@@ -22,6 +22,8 @@ services:
     image: superlike1/mysql-app:latest
     ports:
       - "3307:3306"
+    depends_on:
+      - gerador
     environment:
       MYSQL_ROOT_PASSWORD: walker1207
       MYSQL_DATABASE: app_db

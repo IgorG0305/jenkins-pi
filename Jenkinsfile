@@ -19,7 +19,7 @@ pipeline {
                     sh "docker build -t ${IMAGE_BACKEND}:latest ./backend"
                     sh "docker build -t ${IMAGE_GERADOR}:latest ./backend"
                     sh "docker build -t ${IMAGE_MYSQL}:latest ./mysql"
-                    sh "docker build -t ${IMAGE_RSCRIPT}:latest ."
+                    sh "docker build -t ${IMAGE_RSCRIPT}:latest -f ./rscript/Dockerfile ."
 
                     // login no docker hub token
                     withCredentials([usernamePassword(credentialsId:'docker-hub-token', 
