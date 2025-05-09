@@ -15,8 +15,6 @@ services:
   gerador:
     image: superlike1/gerador-app:latest
     command: ["python", "gerador.py"]
-    depends_on:
-      - db
 
   db:
     image: superlike1/mysql-app:latest
