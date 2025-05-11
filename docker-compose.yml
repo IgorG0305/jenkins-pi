@@ -32,6 +32,8 @@ services:
 
   rscript:
     image: superlike1/rscript-app:latest
+    depends_on:
+      - gerador
 
 volumes:
   db_data:
