@@ -40,8 +40,14 @@ pipeline {
         stage('Build Imagem RScript (com CSV gerado)') {
             steps {
                 script {
-                    // Agora o arquivo CSV existe, então podemos montar a imagem que o inclui
+                    // Primeiro copia o CSV da pasta backend para a pasta rscript
+                    sh "cp ${env.WORKSPACE}/backend/alunos_com_erros.csv ${env.WORKSPACE}/rscript/"
+            
+                    // Agora construa a imagem
                     sh "docker build -t ${IMAGE_RSCRIPT}:latest ./rscript"
+            
+                    // Opcional: remove o CSV após o build para manter o diretório limpo
+                    sh "rm ${env.WORKSPACE}/rscript/alunos_com_erros.csv"
                 }
             }
         }
