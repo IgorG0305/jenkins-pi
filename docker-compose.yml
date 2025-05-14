@@ -16,6 +16,8 @@ services:
     image: superlike1/gerador-app:latest
     dockerfile: Dockerfile
     command: ["python", "gerador.py"]
+    volumes:
+      - ./backend:/app
 
   db:
     image: superlike1/mysql-app:latest
