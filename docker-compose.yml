@@ -18,13 +18,13 @@ services:
     command: ["python", "gerador.py"]
     volumes:
       - ./backend:/app
+    depends_on:
+      - backend
 
   db:
     image: superlike1/mysql-app:latest
     ports:
       - "3307:3306"
-    depends_on:
-      - gerador
     environment:
       MYSQL_ROOT_PASSWORD: walker1207
       MYSQL_DATABASE: app_db
@@ -32,6 +32,8 @@ services:
       MYSQL_PASSWORD: walker1207
     volumes:
       - db_data:/var/lib/mysql
+    depends_on:
+      - gerador
 
   rscript:
     image: superlike1/rscript-app:latest
