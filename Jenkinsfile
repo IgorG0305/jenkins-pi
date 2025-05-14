@@ -25,22 +25,45 @@ pipeline {
         stage('Executar Gerador para criar CSV') {
             steps {
                 script {
-                    def backendPath = "${env.WORKSPACE}/backend"
-                    sh "docker run --rm -v \"${backendPath}:/app\" ${IMAGE_GERADOR}:latest python gerador.py"
-                    sh "ls -l \"${backendPath}/alunos_com_erros.csv\""
+                    // Garante permissões no diretório backend
+                    sh """
+                        mkdir -p "${env.WORKSPACE}/backend"
+                        chmod 777 "${env.WORKSPACE}/backend"
+                    """
+                    
+                    // Executa o container com volume montado corretamente
+                    sh """
+                        docker run --rm \
+                        -v "${env.WORKSPACE}/backend:/app:rw" \
+                        -w /app \
+                        ${IMAGE_GERADOR}:latest \
+                        python gerador.py
+                    """
+                    
+                    // Verificação robusta do arquivo gerado
+                    sh """
+                        echo "Conteúdo de ${env.WORKSPACE}/backend:"
+                        ls -lah "${env.WORKSPACE}/backend"
+                        echo "Tamanho do arquivo CSV:"
+                        du -sh "${env.WORKSPACE}/backend/alunos_com_erros.csv"
+                    """
                 }
             }
         }
 
-        stage('Build Imagem RScript (com CSV gerado)') {
+        stage('Build Imagem RScript') {
             steps {
                 script {
-                    // Garante que o diretório rscript existe e copia o CSV
+                    // Garante que o diretório rscript existe
                     sh """
                         mkdir -p "${env.WORKSPACE}/rscript"
                         cp "${env.WORKSPACE}/backend/alunos_com_erros.csv" "${env.WORKSPACE}/rscript/"
+                        chmod 644 "${env.WORKSPACE}/rscript/alunos_com_erros.csv"
                     """
+                    
                     sh "docker build -t ${IMAGE_RSCRIPT}:latest ./rscript"
+                    
+                    // Limpeza opcional
                     sh "rm -f \"${env.WORKSPACE}/rscript/alunos_com_erros.csv\""
                 }
             }
@@ -52,7 +75,8 @@ pipeline {
                     withCredentials([usernamePassword(
                         credentialsId: 'docker-hub-token', 
                         usernameVariable: 'DOCKER_USER', 
-                        passwordVariable: 'DOCKER_PASS')]) {
+                        passwordVariable: 'DOCKER_PASS'
+                    ]) {
                         sh """
                             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                             docker push ${IMAGE_FRONTEND}:latest
@@ -69,10 +93,20 @@ pipeline {
         stage('Deploy com Docker Compose') {
             steps {
                 script {
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
+                    sh 'docker-compose down --remove-orphans'
+                    sh 'docker-compose up -d --force-recreate'
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            // Limpeza final opcional
+            sh """
+                docker system prune -f || true
+                rm -f "${env.WORKSPACE}/backend/alunos_com_erros.csv"
+            """
         }
     }
 }
