@@ -11,21 +11,46 @@ pipeline {
     }
 
     stages {
-        stage('Build e Push Docker Images') {
+        stage('Build Imagens Base') {
             steps {
                 script {
-                    // build
                     sh "docker build -t ${IMAGE_FRONTEND}:latest ./frontend"
                     sh "docker build -t ${IMAGE_BACKEND}:latest ./backend"
                     sh "docker build -t ${IMAGE_GERADOR}:latest ./backend"
                     sh "docker build -t ${IMAGE_MYSQL}:latest ./mysql"
-                    sh "docker build -t ${IMAGE_RSCRIPT}:latest -f ./rscript/Dockerfile ."
+                }
+            }
+        }
 
-                    // login no docker hub token
+        stage('Executar Gerador para criar CSV') {
+            steps {
+                script {
+                    // Executa o container do gerador temporariamente e gera o CSV
+                    sh "docker run --rm -v ${env.WORKSPACE}/backend:/app ${IMAGE_GERADOR}:latest python gerador.py"
+
+                    // Agora o arquivo ./backend/alunos_com_erros.csv existe
+                    sh "ls -l ./backend/alunos_com_erros.csv"
+                }
+            }
+        }
+
+        stage('Build Imagem RScript (com CSV gerado)') {
+            steps {
+                script {
+                    sh "docker build -t ${IMAGE_RSCRIPT}:latest -f ./rscript/Dockerfile ."
+                }
+            }
+        }
+
+        stage('Push Imagens para Docker Hub') {
+            steps {
+                script {
                     withCredentials([usernamePassword(credentialsId:'docker-hub-token', 
-                    usernameVariable: 'DOCKER_USER', 
-                    passwordVariable: 'DOCKER_PASS')]) {
+                        usernameVariable: 'DOCKER_USER', 
+                        passwordVariable: 'DOCKER_PASS')]) {
+
                         sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+
                         sh "docker push ${IMAGE_FRONTEND}:latest"
                         sh "docker push ${IMAGE_BACKEND}:latest"
                         sh "docker push ${IMAGE_GERADOR}:latest"
@@ -35,6 +60,7 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy com Docker Compose') {
             steps {
                 script {
