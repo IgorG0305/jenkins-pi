@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   frontend:
     image: superlike1/frontend-app:latest
@@ -5,7 +7,6 @@ services:
       - "3000:3000"
     depends_on:
       - backend
-    command: ["serve", "-s", "public", "-l", "3000"]
 
   backend:
     image: superlike1/backend-app:latest
@@ -14,8 +15,6 @@ services:
 
   gerador:
     image: superlike1/gerador-app:latest
-    dockerfile: Dockerfile
-    command: ["python", "gerador.py"]
     volumes:
       - ./backend:/app
     depends_on:
@@ -32,8 +31,6 @@ services:
       MYSQL_PASSWORD: walker1207
     volumes:
       - db_data:/var/lib/mysql
-    depends_on:
-      - gerador
 
   rscript:
     image: superlike1/rscript-app:latest
