@@ -14,6 +14,7 @@ services:
 
   gerador:
     image: superlike1/gerador-app:latest
+    dockerfile: Dockerfile
     command: ["python", "gerador.py"]
 
   db:
