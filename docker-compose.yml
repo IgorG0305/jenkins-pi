@@ -4,7 +4,7 @@ services:
   frontend:
     image: superlike1/frontend-app:latest
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       - backend
 
@@ -23,7 +23,7 @@ services:
   db:
     image: superlike1/mysql-app:latest
     ports:
-      - "3307:3306"
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: walker1207
       MYSQL_DATABASE: app_db
@@ -37,5 +37,37 @@ services:
     depends_on:
       - gerador
 
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3011:3011"
+    depends_on:
+      - db
+      - loki
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+  loki:
+    image: grafana/loki:2.8.2
+    ports:
+      - "9091:9091"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki_data:/var/lib/loki
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9010:9010" # Porta padrão do Prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro # Monta como arquivo somente leitura
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
 volumes:
   db_data:
+  grafana_data:
+  loki_data:
