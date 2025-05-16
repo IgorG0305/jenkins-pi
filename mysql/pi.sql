@@ -125,3 +125,54 @@ presente BOOLEAN NOT NULL,
 FOREIGN KEY (aluno_id) REFERENCES alunos(id) ON DELETE CASCADE,
 FOREIGN KEY (materia_id) REFERENCES materias(id) ON DELETE CASCADE
 );
+
+-- Inserir um usuário do tipo aluno
+INSERT INTO usuarios (nome, email, senha_hash, tipo)
+VALUES ('João Silva', 'joao@email.com', 'hashsenha123', 'aluno');
+
+-- Inserir um curso
+INSERT INTO cursos (nome)
+VALUES ('Ciência da Computação');
+
+-- Inserir uma turma (vinculada ao curso inserido acima)
+INSERT INTO turmas (curso_id, nome)
+VALUES (1, 'Turma A - 2025');
+
+-- Inserir um professor (primeiro criar um usuário do tipo professor)
+INSERT INTO usuarios (nome, email, senha_hash, tipo)
+VALUES ('Maria Oliveira', 'maria@email.com', 'hashsenha456', 'professor');
+
+INSERT INTO professores (nome, usuario_id, telefone, especializacao)
+VALUES ('Maria Oliveira', 2, '11999999999', 'Engenharia de Software');
+
+-- Inserir um aluno (vinculado ao usuário, curso e turma)
+INSERT INTO alunos (nome, usuario_id, data_nascimento, curso_id, turma_id)
+VALUES ('João Silva', 1, '2000-05-10', 1, 1);
+
+-- Inserir situação do aluno
+INSERT INTO situacao_aluno (aluno_id, salario_medio, trabalha, cidade, estado, uso_alcool, fuma, uso_drogas, problemas_mentais)
+VALUES (1, 1500.00, TRUE, 'São Paulo', 'SP', FALSE, FALSE, FALSE, 'Nenhum');
+
+-- Inserir uma matéria
+INSERT INTO materias (nome, curso_id, professor_id)
+VALUES ('Algoritmos e Lógica de Programação', 1, 1);
+
+-- Inserir uma avaliação (vinculada à matéria)
+INSERT INTO avaliacoes (materia_id, titulo, descricao, data)
+VALUES (1, 'Prova 1', 'Avaliação dos primeiros conteúdos', '2025-05-01');
+
+-- Inserir uma nota (vinculada ao aluno e avaliação)
+INSERT INTO notas (aluno_id, avaliacao_id, nota)
+VALUES (1, 1, 8.5);
+
+-- Inserir um alerta para o aluno
+INSERT INTO alertas (aluno_id, mensagem)
+VALUES (1, 'Faltas acima do permitido!');
+
+-- Inserir um histórico acadêmico
+INSERT INTO historico_academico (aluno_id, curso_id, turma_id, data_inicio, data_fim, status)
+VALUES (1, 1, 1, '2024-02-01', NULL, 'cursando');
+
+-- Inserir frequência
+INSERT INTO frequencia (aluno_id, materia_id, data, presente)
+VALUES (1, 1, '2025-05-15', TRUE);
