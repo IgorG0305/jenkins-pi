@@ -8,6 +8,7 @@ pipeline {
         IMAGE_GERADOR  = "${DOCKER_HUB_USER}/gerador-app"
         IMAGE_MYSQL    = "${DOCKER_HUB_USER}/mysql-app"
         IMAGE_RSCRIPT  = "${DOCKER_HUB_USER}/rscript-app"
+        IMAGE_FLASKAPI = "${DOCKER_HUB_USER}/flask-api"
     }
 
     stages {
@@ -18,6 +19,7 @@ pipeline {
                     sh "docker build -t ${IMAGE_BACKEND}:latest ./backend"
                     sh "docker build -t ${IMAGE_GERADOR}:latest ./backend"
                     sh "docker build -t ${IMAGE_MYSQL}:latest ./mysql"
+                    sh "docker build -t ${IMAGE_FLASKAPI}:latest ./flask-api"
                 }
             }
         }
@@ -79,6 +81,7 @@ pipeline {
                             docker push ${IMAGE_GERADOR}:latest
                             docker push ${IMAGE_MYSQL}:latest
                             docker push ${IMAGE_RSCRIPT}:latest
+                            docker push ${IMAGE_FLASKAPI}:latest
                         """
                     }
                 }
