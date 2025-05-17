@@ -28,16 +28,15 @@ services:
       - db
   db:
     image: mysql:8.0
+    container_name: mysql_db
     ports:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: walker1207
-      MYSQL_DATABASE: faculdades1
-      MYSQL_USER: dbpi
-      MYSQL_PASSWORD: walker1207
     volumes:
-      - db_data:/var/lib/mysql
       - ./my_custom.cnf:/etc/mysql/conf.d/my_custom.cnf
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
 
   rscript:
     image: superlike1/rscript-app:latest
