@@ -32,7 +32,7 @@ services:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: walker1207
-      MYSQL_DATABASE: app_db
+      MYSQL_DATABASE: faculdades1
       MYSQL_USER: dbpi
       MYSQL_PASSWORD: walker1207
     volumes:
