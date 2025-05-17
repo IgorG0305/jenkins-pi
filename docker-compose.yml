@@ -35,9 +35,10 @@ services:
       MYSQL_DATABASE: faculdades1
       MYSQL_USER: dbpi
       MYSQL_PASSWORD: walker1207
-    command: --bind-address=0.0.0.0
     volumes:
       - db_data:/var/lib/mysql
+      - ./my_custom.cnf:/etc/mysql/conf.d/my_custom.cnf
+
   rscript:
     image: superlike1/rscript-app:latest
     depends_on:
