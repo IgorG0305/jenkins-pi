@@ -176,3 +176,9 @@ VALUES (1, 1, 1, '2024-02-01', NULL, 'cursando');
 -- Inserir frequência
 INSERT INTO frequencia (aluno_id, materia_id, data, presente)
 VALUES (1, 1, '2025-05-15', TRUE);
+
+-- Conceder permissões ao usuário dbpi para acessar o banco de qualquer host
+GRANT ALL PRIVILEGES ON faculdades1.* TO 'dbpi'@'%' IDENTIFIED BY 'walker1207';
+
+-- Aplicar as permissões
+FLUSH PRIVILEGES;
