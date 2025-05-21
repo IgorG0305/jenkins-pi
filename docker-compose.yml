@@ -35,6 +35,10 @@ services:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: walker1207
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 10
     volumes:
       - ./my_custom.cnf:/etc/mysql/conf.d/my_custom.cnf
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
