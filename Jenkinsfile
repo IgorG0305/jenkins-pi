@@ -68,17 +68,19 @@ pipeline {
         stage('Executar Script R com Volume') {
             steps {
                 script {
-                    echo "Executando o script R dentro do contêiner, com volume mapeado para salvar CSV corrigido..."
+                    echo "Executando o script R dentro do contêiner, com volumes mapeados para script e dados..."
 
                     sh """
                     docker run --rm \
-                      -v "${env.WORKSPACE}/backend:/app" \
-                      ${IMAGE_RSCRIPT}:latest
+                        -v "${env.WORKSPACE}/rscript:/app/rscript" \
+                        -v "${env.WORKSPACE}/backend/data:/app/data" \
+                        ${IMAGE_RSCRIPT}:latest \
+                        Rscript /app/rscript/limpeza.r
                     """
 
                     echo "Verificando se arquivo alunos_corrigido.csv foi gerado..."
                     sh """
-                    if [ -f "${env.WORKSPACE}/backend/alunos_corrigido.csv" ]; then
+                    if [ -f "${env.WORKSPACE}/backend/data/alunos_corrigido.csv" ]; then
                         echo "Arquivo alunos_corrigido.csv gerado com sucesso!"
                     else
                         echo "Arquivo alunos_corrigido.csv NÃO encontrado! Abortando pipeline."
@@ -87,7 +89,7 @@ pipeline {
                     """
                 }
             }
-        }
+        }   
 
         stage('Push Imagens para Docker Hub') {
             steps {
