@@ -79,7 +79,7 @@ for aluno_id in range(1, num_alunos + 1):
 
     alunos.append(aluno)
 
-ExportadorCSV.exportar(alunos, 'data/alunos_com_erros.csv')
+ExportadorCSV.exportar(alunos, 'alunos_com_erros.csv')
 
 # Criar e inserir no BD
 dados = [aluno.to_dict() for aluno in alunos]
