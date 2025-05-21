@@ -164,4 +164,5 @@ if (length(estado_tab) >= 2) {
   dados$`Estado Civil`[is.na(dados$`Estado Civil`)] <- sample(estado_names, size = n_na_estado, replace = TRUE, prob = estado_prop)
 }
 
-write.csv(alunose, "/app/alunos_corrigido.csv", row.names = FALSE)
+write.csv(dados, "/app/alunos_corrigido.csv", row.names = FALSE)
+
