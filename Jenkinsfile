@@ -38,13 +38,10 @@ pipeline {
                     sh 'docker-compose up -d db'
 
                     echo "Aguardando banco de dados ficar pronto..."
-                    sh 'sleep 15' // Ajuste conforme seu tempo de startup do DB
+                    sh 'sleep 15'
 
                     echo "Executando container gerador para criar arquivo CSV..."
                     sh 'docker-compose run --rm gerador'
-
-                    echo "Conteúdo do diretório backend após execução do gerador:"
-                    sh "ls -lah \"${env.WORKSPACE}/backend\""
 
                     echo "Verificando se arquivo alunos_com_erros.csv foi criado..."
                     sh """
@@ -62,18 +59,32 @@ pipeline {
         stage('Build Imagem RScript') {
             steps {
                 script {
-                    echo "Preparando arquivo CSV para build da imagem RScript..."
-                    sh """
-                    mkdir -p "${env.WORKSPACE}/rscript"
-                    cp "${env.WORKSPACE}/backend/alunos_com_erros.csv" "${env.WORKSPACE}/rscript/"
-                    chmod 644 "${env.WORKSPACE}/rscript/alunos_com_erros.csv"
-                    """
-
                     echo "Construindo imagem do RScript..."
                     sh "docker build -t ${IMAGE_RSCRIPT}:latest ./rscript"
+                }
+            }
+        }
 
-                    echo "Removendo arquivo CSV temporário do rscript..."
-                    sh "rm -f \"${env.WORKSPACE}/rscript/alunos_com_erros.csv\""
+        stage('Executar Script R com Volume') {
+            steps {
+                script {
+                    echo "Executando o script R dentro do contêiner, com volume mapeado para salvar CSV corrigido..."
+
+                    sh """
+                    docker run --rm \
+                      -v "${env.WORKSPACE}/backend:/app" \
+                      ${IMAGE_RSCRIPT}:latest
+                    """
+
+                    echo "Verificando se arquivo alunos_corrigido.csv foi gerado..."
+                    sh """
+                    if [ -f "${env.WORKSPACE}/backend/alunos_corrigido.csv" ]; then
+                        echo "Arquivo alunos_corrigido.csv gerado com sucesso!"
+                    else
+                        echo "Arquivo alunos_corrigido.csv NÃO encontrado! Abortando pipeline."
+                        exit 1
+                    fi
+                    """
                 }
             }
         }
