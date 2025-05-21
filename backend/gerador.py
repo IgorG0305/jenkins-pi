@@ -15,7 +15,7 @@ from sqlalchemy import create_engine
 usuario = 'dbpi'
 senha = 'walker1207'
 host = 'db'
-porta = '3307'
+porta = '3306'
 nome_banco = 'faculdades1'
 tabela_destino = 'alunos'
 
