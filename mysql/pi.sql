@@ -1,7 +1,6 @@
 CREATE DATABASE IF NOT EXISTS faculdades1;
 USE faculdades1;
 
--- Tabela principal que você vai usar
 CREATE TABLE alunos (
     aluno_id INT PRIMARY KEY AUTO_INCREMENT,
     nome_aluno VARCHAR(100),
