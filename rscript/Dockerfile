@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
 
 # Instala o pacote rmarkdown (e outros se quiser)
 RUN R -e "install.packages('rmarkdown', repos='http://cran.rstudio.com')"
-
+RUN R -e "install.packages(c('ggplot2', 'dplyr', 'tidyr'), repos='https://cloud.r-project.org/')"
 # Cria diretório de trabalho
 WORKDIR /app
 
