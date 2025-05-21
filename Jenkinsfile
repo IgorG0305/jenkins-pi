@@ -44,7 +44,7 @@ pipeline {
                     sh 'docker-compose run --rm gerador'
 
                     echo "Conteúdo do diretório backend após execução do gerador:"
-                    sh "ls -lah ${env.WORKSPACE}/backend"
+                    sh "ls -lah \"${env.WORKSPACE}/backend\""
 
                     echo "Verificando se arquivo alunos_com_erros.csv foi criado..."
                     sh """
