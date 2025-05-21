@@ -18,7 +18,8 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      - backend
+      db:
+        condition: service_healthy
     command: python gerador.py
 
   flaskapi:
