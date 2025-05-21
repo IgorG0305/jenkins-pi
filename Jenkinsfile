@@ -28,27 +28,29 @@ pipeline {
             steps {
                 script {
                     sh """
-                        mkdir -p "${env.WORKSPACE}/backend"
-                        chmod 777 "${env.WORKSPACE}/backend"
+                    mkdir -p "${env.WORKSPACE}/backend"
+                    chmod 777 "${env.WORKSPACE}/backend"
                     """
-                    
-                    sh """
-                        docker run --rm \
-                        -v "${env.WORKSPACE}/backend:/app:rw" \
-                        -w /app \
-                        ${IMAGE_GERADOR}:latest \
-                        python gerador.py
-                    """
-                    
-                    sh """
-                        echo "Conteúdo de ${env.WORKSPACE}/backend:"
-                        ls -lah "${env.WORKSPACE}/backend"
-                        echo "Tamanho do arquivo CSV:"
-                        du -sh "${env.WORKSPACE}/backend/alunos_com_erros.csv"
-                    """
-                }
+
+            // Sobe o banco de dados
+            sh 'docker-compose up -d db'
+
+            // Aguarda banco estar pronto (ou confie no healthcheck)
+            sh 'sleep 10'
+
+            // Executa o gerador conectado ao banco
+            sh 'docker-compose run --rm gerador'
+
+            sh """
+                echo "Conteúdo de ${env.WORKSPACE}/backend:"
+                ls -lah "${env.WORKSPACE}/backend"
+                echo "Tamanho do arquivo CSV:"
+                du -sh "${env.WORKSPACE}/backend/alunos_com_erros.csv"
+            """
             }
         }
+    }
+
 
         stage('Build Imagem RScript') {
             steps {

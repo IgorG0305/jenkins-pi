@@ -19,6 +19,7 @@ services:
       - ./backend:/app
     depends_on:
       - backend
+    command: python gerador.py
 
   flaskapi:
     image: superlike1/flask-app:latest
