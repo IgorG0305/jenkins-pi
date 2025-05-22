@@ -30,8 +30,8 @@ pipeline {
                 script {
                     echo "Criando diretório backend no workspace e ajustando permissões..."
                     sh """
-                    mkdir -p "${env.WORKSPACE}/backend"
-                    chmod 777 "${env.WORKSPACE}/backend"
+                        mkdir -p "${env.WORKSPACE}/backend"
+                        chmod 777 "${env.WORKSPACE}/backend"
                     """
 
                     echo "Subindo banco de dados MySQL..."
@@ -45,12 +45,12 @@ pipeline {
 
                     echo "Verificando se arquivo alunos_com_erros.csv foi criado..."
                     sh """
-                    if [ -f "${env.WORKSPACE}/backend/alunos_com_erros.csv" ]; then
-                        echo "Arquivo alunos_com_erros.csv encontrado."
-                    else
-                        echo "Arquivo alunos_com_erros.csv NÃO encontrado! Abortando pipeline."
-                        exit 1
-                    fi
+                        if [ -f "${env.WORKSPACE}/backend/alunos_com_erros.csv" ]; then
+                            echo "Arquivo alunos_com_erros.csv encontrado."
+                        else
+                            echo "Arquivo alunos_com_erros.csv NÃO encontrado! Abortando pipeline."
+                            exit 1
+                        fi
                     """
                 }
             }
@@ -69,23 +69,22 @@ pipeline {
             steps {
                 script {
                     echo "Executando o script R dentro do contêiner, com volume mapeado para dados..."
-
                     sh """
-                    docker run --rm \
-                      -v "${env.WORKSPACE}/rscript:/app/rscript" \
-                      -v "${env.WORKSPACE}/backend/data:/app" \
-                      ${IMAGE_RSCRIPT}:latest \
-                      Rscript /app/rscript/limpeza.r
+                        docker run --rm \
+                            -v "${env.WORKSPACE}/rscript:/app/rscript" \
+                            -v "${env.WORKSPACE}/backend/data:/app" \
+                            ${IMAGE_RSCRIPT}:latest \
+                            Rscript /app/rscript/limpeza.r
                     """
 
                     echo "Verificando se arquivo alunos_corrigido.csv foi gerado..."
                     sh """
-                    if [ -f "${env.WORKSPACE}/backend/data/alunos_corrigido.csv" ]; then
-                        echo "Arquivo alunos_corrigido.csv gerado com sucesso!"
-                    else
-                        echo "Arquivo alunos_corrigido.csv NÃO encontrado! Abortando pipeline."
-                        exit 1
-                    fi
+                        if [ -f "${env.WORKSPACE}/backend/data/alunos_corrigido.csv" ]; then
+                            echo "Arquivo alunos_corrigido.csv gerado com sucesso!"
+                        else
+                            echo "Arquivo alunos_corrigido.csv NÃO encontrado! Abortando pipeline."
+                            exit 1
+                        fi
                     """
                 }
             }
@@ -96,8 +95,8 @@ pipeline {
                 script {
                     echo "Logando no Docker Hub e enviando imagens..."
                     withCredentials([usernamePassword(
-                        credentialsId: 'docker-hub-token', 
-                        usernameVariable: 'DOCKER_USER', 
+                        credentialsId: 'docker-hub-token',
+                        usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
                         sh """
@@ -130,9 +129,15 @@ pipeline {
             steps {
                 sh '''
                     docker run -d --name grafana \
+<<<<<<< HEAD
+                        -p 3000:3000 \
+                        -v grafana-storage:/var/lib/grafana \
+                        grafana/grafana-oss
+=======
                       -p 3000:3000 \
                       -v grafana-storage:/var/lib/grafana \
                       grafana/grafana-oss
+>>>>>>> e8833d267fb3cb805357af1e59f49ff78c145519
                 '''
             }
         }
@@ -141,9 +146,15 @@ pipeline {
             steps {
                 sh '''
                     docker run -d --name prometheus \
+<<<<<<< HEAD
+                        -p 9090:9090 \
+                        -v prometheus-storage:/prometheus \
+                        prom/prometheus
+=======
                       -p 9090:9090 \
                       -v prometheus-storage:/prometheus \
                       prom/prometheus
+>>>>>>> e8833d267fb3cb805357af1e59f49ff78c145519
                 '''
             }
         }
@@ -152,9 +163,15 @@ pipeline {
             steps {
                 sh '''
                     docker run -d --name loki \
+<<<<<<< HEAD
+                        -p 3100:3100 \
+                        -v loki-storage:/loki \
+                        grafana/loki
+=======
                       -p 3100:3100 \
                       -v loki-storage:/loki \
                       grafana/loki
+>>>>>>> e8833d267fb3cb805357af1e59f49ff78c145519
                 '''
             }
         }
@@ -176,3 +193,4 @@ pipeline {
         }
     }
 }
+// Fim do pipeline
