@@ -125,6 +125,45 @@ pipeline {
                 }
             }
         }
+
+        stage('Start Grafana') {
+            steps {
+                sh '''
+                    docker run -d --name grafana \
+                      -p 3000:3000 \
+                      -v grafana-storage:/var/lib/grafana \
+                      grafana/grafana-oss
+                '''
+            }
+        }
+
+        stage('Start Prometheus') {
+            steps {
+                sh '''
+                    docker run -d --name prometheus \
+                      -p 9090:9090 \
+                      -v prometheus-storage:/prometheus \
+                      prom/prometheus
+                '''
+            }
+        }
+
+        stage('Start Loki') {
+            steps {
+                sh '''
+                    docker run -d --name loki \
+                      -p 3100:3100 \
+                      -v loki-storage:/loki \
+                      grafana/loki
+                '''
+            }
+        }
+
+        stage('Start Stack') {
+            steps {
+                sh 'docker-compose up -d'
+            }
+        }
     }
 
     post {
@@ -136,43 +175,4 @@ pipeline {
             """
         }
     }
-
-    stage('Start Grafana') {
-    steps {
-        sh '''
-            docker run -d --name grafana \
-              -p 3000:3000 \
-              -v grafana-storage:/var/lib/grafana \
-              grafana/grafana-oss
-        '''
-    }
-}
-    stage('Start Prometheus') {
-    steps {
-        sh '''
-            docker run -d --name prometheus \
-              -p 9090:9090 \
-              -v prometheus-storage:/prometheus \
-              prom/prometheus
-        '''
-    }
-}
-
-    stage('Start Loki') {
-    steps {
-        sh '''
-            docker run -d --name loki \
-              -p 3100:3100 \
-              -v loki-storage:/loki \
-              grafana/loki
-        '''
-    }
-
-    stage('Start Stack') {
-    steps {
-        sh 'docker-compose up -d'
-    }
-}
-    
-}
 }
