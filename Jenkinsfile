@@ -129,9 +129,15 @@ pipeline {
             steps {
                 sh '''
                     docker run -d --name grafana \
+<<<<<<< HEAD
                         -p 3000:3000 \
                         -v grafana-storage:/var/lib/grafana \
                         grafana/grafana-oss
+=======
+                      -p 3000:3000 \
+                      -v grafana-storage:/var/lib/grafana \
+                      grafana/grafana-oss
+>>>>>>> e8833d267fb3cb805357af1e59f49ff78c145519
                 '''
             }
         }
@@ -140,9 +146,15 @@ pipeline {
             steps {
                 sh '''
                     docker run -d --name prometheus \
+<<<<<<< HEAD
                         -p 9090:9090 \
                         -v prometheus-storage:/prometheus \
                         prom/prometheus
+=======
+                      -p 9090:9090 \
+                      -v prometheus-storage:/prometheus \
+                      prom/prometheus
+>>>>>>> e8833d267fb3cb805357af1e59f49ff78c145519
                 '''
             }
         }
@@ -151,9 +163,15 @@ pipeline {
             steps {
                 sh '''
                     docker run -d --name loki \
+<<<<<<< HEAD
                         -p 3100:3100 \
                         -v loki-storage:/loki \
                         grafana/loki
+=======
+                      -p 3100:3100 \
+                      -v loki-storage:/loki \
+                      grafana/loki
+>>>>>>> e8833d267fb3cb805357af1e59f49ff78c145519
                 '''
             }
         }
