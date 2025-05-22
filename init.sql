@@ -1,9 +1,8 @@
 CREATE DATABASE IF NOT EXISTS faculdades1;
--- garante que está usando o banco mesmo que o anterior não tenha efeito imediato
-ALTER DATABASE faculdades1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE faculdades1;
 
--- AQUI começa a criação da tabela
+DROP TABLE IF EXISTS alunos;
+
 CREATE TABLE alunos (
     aluno_id INT PRIMARY KEY AUTO_INCREMENT,
     nome_aluno VARCHAR(100),
@@ -20,7 +19,9 @@ CREATE TABLE alunos (
     estado_civil VARCHAR(50),
     semestre INT,
     bimestre INT,
+    processado BOOL DEFAULT 0,
 
+   
     aula_1 VARCHAR(100),
     professor_1 VARCHAR(100),
     notas_1 DECIMAL(4,2),
@@ -50,9 +51,12 @@ CREATE TABLE alunos (
     notas_5 DECIMAL(4,2),
     faltas_5 INT,
     desempenho_5 VARCHAR(50),
-
+   
     risco_evasao INT
+   
 );
+
+DROP TABLE IF EXISTS alunos_tratados;
 
 CREATE TABLE alunos_tratados (
     aluno_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -70,7 +74,9 @@ CREATE TABLE alunos_tratados (
     estado_civil VARCHAR(50),
     semestre INT,
     bimestre INT,
+    processado BOOL DEFAULT 0,
 
+   
     aula_1 VARCHAR(100),
     professor_1 VARCHAR(100),
     notas_1 DECIMAL(4,2),
@@ -100,11 +106,12 @@ CREATE TABLE alunos_tratados (
     notas_5 DECIMAL(4,2),
     faltas_5 INT,
     desempenho_5 VARCHAR(50),
-
+   
     risco_evasao INT
+   
 );
+
 
 CREATE USER IF NOT EXISTS 'dbpi'@'%' IDENTIFIED BY 'walker1207';
 GRANT ALL PRIVILEGES ON faculdades1.* TO 'dbpi'@'%';
 FLUSH PRIVILEGES;
-
