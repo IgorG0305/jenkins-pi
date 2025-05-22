@@ -188,7 +188,7 @@ if (nrow(dados) > 0) {
 
   # Atualiza como processado
   ids = paste(dados$ID, collapse = ",")
-  dbExecute(con, sprintf("UPDATE alunos_raw SET processado = 1 WHERE ID IN (%s)", ids))
+  dbExecute(con, sprintf("UPDATE alunos SET processado = 1 WHERE ID IN (%s)", ids))
 
   cat(paste(Sys.time(), "- Processados", nrow(dados), "registros.\n"))
 
