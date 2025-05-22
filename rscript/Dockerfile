@@ -17,11 +17,12 @@ RUN apt-get update && apt-get install -y \
 
 # Instala o pacote rmarkdown (e outros se quiser)
 RUN R -e "install.packages('rmarkdown', repos='http://cran.rstudio.com')"
+RUN R -e "install.packages(c('RMySQL', 'DBI', 'tools', 'dplyr', 'tidyr'), repos='https://cloud.r-project.org/')"
+# Cria diretório de trabalho
+WORKDIR /app
 
-# Copia os arquivos necessários
+# Copia apenas o script R para a imagem
 COPY limpeza.r /app/limpeza.r
-COPY alunos_com_erros.csv /app/alunos_com_erros.csv
 
-
-# Comando para rodar o script e manter o container ativo
-CMD ["bash", "-c", "Rscript /app/limpeza.r && tail -f /dev/null"]
+# Define o comando de execução
+CMD ["Rscript", "limpeza.r"]
