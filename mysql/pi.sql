@@ -1,6 +1,8 @@
 CREATE DATABASE IF NOT EXISTS faculdades1;
 USE faculdades1;
 
+DROP TABLE IF EXISTS alunos;
+
 CREATE TABLE alunos (
     aluno_id INT PRIMARY KEY AUTO_INCREMENT,
     nome_aluno VARCHAR(100),
@@ -53,6 +55,8 @@ CREATE TABLE alunos (
     risco_evasao INT
    
 );
+
+DROP TABLE IF EXISTS alunos_tratados;
 
 CREATE TABLE alunos_tratados (
     aluno_id INT PRIMARY KEY AUTO_INCREMENT,
