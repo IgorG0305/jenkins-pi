@@ -38,7 +38,7 @@ pipeline {
                     sh 'docker-compose up -d db'
 
                     echo "Aguardando banco de dados ficar pronto..."
-                    sh 'sleep 15'
+                    // ✅ Removido sleep, healthcheck já garante readiness.
 
                     echo "Executando container gerador para criar arquivo CSV..."
                     sh 'docker-compose run --rm gerador'
@@ -127,52 +127,34 @@ pipeline {
 
         stage('Start Grafana') {
             steps {
-                sh '''
+                sh """
                     docker run -d --name grafana \
-<<<<<<< HEAD
                         -p 3000:3000 \
                         -v grafana-storage:/var/lib/grafana \
                         grafana/grafana-oss
-=======
-                      -p 3000:3000 \
-                      -v grafana-storage:/var/lib/grafana \
-                      grafana/grafana-oss
->>>>>>> e8833d267fb3cb805357af1e59f49ff78c145519
-                '''
+                """
             }
         }
 
         stage('Start Prometheus') {
             steps {
-                sh '''
+                sh """
                     docker run -d --name prometheus \
-<<<<<<< HEAD
                         -p 9090:9090 \
                         -v prometheus-storage:/prometheus \
                         prom/prometheus
-=======
-                      -p 9090:9090 \
-                      -v prometheus-storage:/prometheus \
-                      prom/prometheus
->>>>>>> e8833d267fb3cb805357af1e59f49ff78c145519
-                '''
+                """
             }
         }
 
         stage('Start Loki') {
             steps {
-                sh '''
+                sh """
                     docker run -d --name loki \
-<<<<<<< HEAD
                         -p 3100:3100 \
                         -v loki-storage:/loki \
                         grafana/loki
-=======
-                      -p 3100:3100 \
-                      -v loki-storage:/loki \
-                      grafana/loki
->>>>>>> e8833d267fb3cb805357af1e59f49ff78c145519
-                '''
+                """
             }
         }
 
@@ -193,4 +175,3 @@ pipeline {
         }
     }
 }
-// Fim do pipeline

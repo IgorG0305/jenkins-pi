@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     image: superlike1/frontend-app:latest
@@ -27,7 +25,9 @@ services:
     ports:
       - "5051:5050"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
   db:
     image: mysql:8.0
     container_name: mysql_db
@@ -38,16 +38,17 @@ services:
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
+      timeout: 3s
       retries: 10
     volumes:
       - ./my_custom.cnf:/etc/mysql/conf.d/my_custom.cnf
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-
   rscript:
     image: superlike1/rscript-app:latest
     depends_on:
-      - gerador
+      gerador:
+        condition: service_started
 
   grafana:
     image: grafana/grafana:latest
