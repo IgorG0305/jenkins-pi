@@ -14,7 +14,6 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     libmariadb-dev \
-    libmariadbclient-dev \
     && apt-get clean
 
 # Instalar pacotes R
