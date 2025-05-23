@@ -18,7 +18,7 @@ pipeline {
                     sh "docker build --no-cache -t ${IMAGE_GERADOR}:latest ./backend"
                     sh "docker build --no-cache -t ${IMAGE_RSCRIPT}:latest ./rscript"
                     sh "docker build --no-cache -t ${IMAGE_MYSQL}:latest ./mysql"
-                    sh "docker build --no-cache -t ${IMAGE_FLASK}:latest ./flask"
+                    sh "docker build --no-cache -t ${IMAGE_FLASK}:latest ./api"
                     sh "docker build --no-cache -t ${IMAGE_BACKEND}:latest ./backend"
                 }
             }
