@@ -1,7 +1,7 @@
 from faker import Faker
 import random
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 from models.aluno import Aluno
 from services.desempenho import CalculadoraDesempenho
@@ -115,7 +115,7 @@ def gerar_alunos(inicio_id, quantidade):
 def main():
     # Ajuste para sempre começar do último ID + 1
     with engine.connect() as conn:
-        result = conn.execute(f"SELECT MAX(aluno_id) FROM {tabela_destino}")
+        result = conn.execute(text(f"SELECT MAX(aluno_id) FROM {tabela_destino}"))
         max_id = result.scalar()
         if max_id is None:
             max_id = 0
