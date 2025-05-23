@@ -5,6 +5,9 @@ pipeline {
         DOCKER_HUB_USER = 'superlike1'
         IMAGE_GERADOR  = "${DOCKER_HUB_USER}/gerador-app"
         IMAGE_RSCRIPT  = "${DOCKER_HUB_USER}/rscript-app"
+        IMAGE_MYSQL    = "${DOCKER_HUB_USER}/mysql-app"
+        IMAGE_FLASK    = "${DOCKER_HUB_USER}/flask-app"
+        IMAGE_BACKEND  = "${DOCKER_HUB_USER}/backend-app"
     }
 
     stages {
@@ -14,15 +17,19 @@ pipeline {
                     echo "Construindo imagens com --no-cache..."
                     sh "docker build --no-cache -t ${IMAGE_GERADOR}:latest ./backend"
                     sh "docker build --no-cache -t ${IMAGE_RSCRIPT}:latest ./rscript"
+                    sh "docker build --no-cache -t ${IMAGE_MYSQL}:latest ./mysql"
+                    sh "docker build --no-cache -t ${IMAGE_FLASK}:latest ./flask"
+                    sh "docker build --no-cache -t ${IMAGE_BACKEND}:latest ./backend"
                 }
             }
         }
 
-        stage('Subir DB') {
+        stage('Subir Serviços') {
             steps {
                 script {
-                    echo "Subindo banco de dados MySQL..."
-                    sh 'docker-compose up -d db'
+                    echo "Subindo todos os serviços necessários..."
+                    sh 'docker-compose up -d db flaskapi backend frontend grafana prometheus loki'
+
                     echo "Aguardando banco de dados ficar pronto..."
                     sh '''
                         for i in {1..10}; do
