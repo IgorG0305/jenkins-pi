@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
 
 # Instala o pacote rmarkdown (e outros se quiser)
 RUN R -e "install.packages('rmarkdown', repos='http://cran.rstudio.com')"
-RUN R -e "install.packages(c('RMySQL', 'DBI', 'tools', 'dplyr', 'tidyr'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages(c('RMariaDB', 'DBI', 'tools', 'dplyr', 'tidyr'), repos='https://cloud.r-project.org/')"
 # Cria diretório de trabalho
 WORKDIR /app
 
