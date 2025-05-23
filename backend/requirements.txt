@@ -5,4 +5,3 @@ faker
 pymysql
 sqlalchemy
 cryptography
-distutils
