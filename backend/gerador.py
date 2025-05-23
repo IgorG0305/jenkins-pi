@@ -34,6 +34,16 @@ professores = [faker.name() for _ in range(10000)]
 
 gerador_grade = GeradorGrade(disciplinas_por_curso, professores, disciplinas_gerais)
 
+def validar_aluno_dict(d):
+    """ Garante que os valores críticos sejam válidos após injeção de erro. """
+    if d['sexo'] not in sexos:
+        d['sexo'] = random.choice(sexos)
+    if d['estado_civil'] not in estado_civil_list:
+        d['estado_civil'] = random.choice(estado_civil_list)
+    if d['status'] not in status_list:
+        d['status'] = random.choice(status_list)
+    return d
+
 def gerar_alunos(inicio_id, quantidade):
     alunos = []
     for aluno_id in range(inicio_id, inicio_id + quantidade):
@@ -73,7 +83,10 @@ def gerar_alunos(inicio_id, quantidade):
         aluno_dict = aluno.to_dict()
         aluno_dict = ErroInjector.aplicar(aluno_dict)
 
-        # Atualiza o objeto com possíveis erros injetados
+        # Valida os dados críticos após injeção de erro
+        aluno_dict = validar_aluno_dict(aluno_dict)
+
+        # Atualiza o objeto com os dados validados
         for key, value in aluno_dict.items():
             if hasattr(aluno, key):
                 setattr(aluno, key, value)
