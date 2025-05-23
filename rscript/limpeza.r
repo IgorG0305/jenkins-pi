@@ -21,58 +21,58 @@ if (nrow(dados) > 0) {
 
   # Renomeando colunas para coincidir com as funções
   colnames(dados) <- c(
-    "aluno_id", "Nome", "Email", "Curso", "status", "turma", "Sexo", "Idade",
-    "trabalha", "Renda", "acompanhamento_medico", "tem_filho", "Estado_Civil",
+   "aluno_id", "nome_aluno", "email_aluno", "curso", "status", "turma", "sexo", "idade",
+    "trabalha", "renda_familiar", "acompanhamento_medico", "tem_filho", "estado_civil",
     "semestre", "bimestre",
-    "aula_1", "professor_1", "Nota_1", "Falta_Materia_1", "desempenho_1",
-    "aula_2", "professor_2", "Nota_2", "Falta_Materia_2", "desempenho_2",
-    "aula_3", "professor_3", "Nota_3", "Falta_Materia_3", "desempenho_3",
-    "aula_4", "professor_4", "Nota_4", "Falta_Materia_4", "desempenho_4",
-    "aula_5", "professor_5", "Nota_5", "Falta_Materia_5", "desempenho_5",
+    "aula_1", "professor_1", "notas_1", "faltas_1", "desempenho_1",
+    "aula_2", "professor_2", "notas_2", "faltas_2", "desempenho_2",
+    "aula_3", "professor_3", "notas_3", "faltas_3", "desempenho_3",
+    "aula_4", "professor_4", "notas_4", "faltas_4", "desempenho_4",
+    "aula_5", "professor_5", "notas_5", "faltas_5", "desempenho_5",
     "risco_evasao", "processado"
   )
 
   # Funções de limpeza (sem alterações necessárias nelas)
   limpar_nomes <- function(dados) {
-    dados$Nome <- as.character(dados$Nome)
-    dados$Email <- as.character(dados$Email)
+    dados$nome_aluno <- as.character(dados$nome_aluno)
+    dados$email_aluno <- as.character(dados$email_aluno)
     nomes_invalidos <- c("Desconhecido", "NULL", "#######", "0923023", "user", "notexist", "22333123", "?", "", "none.com")
     regex_nome_valido <- "^[A-Za-zÀ-ÿ ]{2,}$"
-    nome_do_email <- sub("@.*", "", dados$Email)
+    nome_do_email <- sub("@.*", "", dados$email_aluno)
     nome_invalido_logico <- (
-      is.na(dados$Nome) |
-      dados$Nome %in% nomes_invalidos |
-      !grepl(regex_nome_valido, dados$Nome)
+      is.na(dados$nome_aluno) |
+      dados$nome_aluno %in% nomes_invalidos |
+      !grepl(regex_nome_valido, dados$nome_aluno)
     )
     nome_email_valido <- grepl(regex_nome_valido, nome_do_email)
     substituir_nome <- nome_invalido_logico & nome_email_valido
-    dados$Nome[substituir_nome] <- nome_do_email[substituir_nome]
+    dados$nome_aluno[substituir_nome] <- nome_do_email[substituir_nome]
     nome_invalido_final <- (
-      is.na(dados$Nome) |
-      dados$Nome %in% nomes_invalidos |
-      !grepl(regex_nome_valido, dados$Nome)
+      is.na(dados$nome_aluno) |
+      dados$nome_aluno %in% nomes_invalidos |
+      !grepl(regex_nome_valido, dados$nome_aluno)
     )
     dados <- dados[!nome_invalido_final, ]
-    nome_suspeito <- grepl("^[a-z]+$", dados$Nome) & !grepl(" ", dados$Nome)
+    nome_suspeito <- grepl("^[a-z]+$", dados$nome_aluno) & !grepl(" ", dados$nome_aluno)
     dados <- dados[!nome_suspeito, ]
-    dados$Nome <- gsub("\\b(Sr\\.|Sra\\.|Dr\\.|Dra\\.)\\s*", "", dados$Nome)
-    dados$Nome <- tools::toTitleCase(tolower(dados$Nome))
+    dados$nome_aluno <- gsub("\\b(Sr\\.|Sra\\.|Dr\\.|Dra\\.)\\s*", "", dados$nome_aluno)
+    dados$nome_aluno <- tools::toTitleCase(tolower(dados$nome_aluno))
     return(dados)
   }
 
   limpar_emails <- function(dados) {
-    dados$Email <- as.character(dados$Email)
+    dados$email_aluno <- as.character(dados$email_aluno)
     regex_email_valido <- "^[^@\\s]+@[^@\\s]+\\.[a-zA-Z]{2,}$"
     emails_invalidos <- c("@email", "NULL", "#######", "XX0294393LLL", "user", "notexist", "22333123", "?", "", "none.com")
     email_invalido_logico <- (
-      is.na(dados$Email) |
-      dados$Email %in% emails_invalidos |
-      !grepl(regex_email_valido, dados$Email)
+      is.na(dados$email_aluno) |
+      dados$email_aluno %in% emails_invalidos |
+      !grepl(regex_email_valido, dados$email_aluno)
     )
-    dados$Email[email_invalido_logico] <- NA
-    nome_limpo <- tolower(gsub(" ", "", dados$Nome))
-    dados$Email[is.na(dados$Email)] <- paste0(nome_limpo[is.na(dados$Email)], "@unifeob.com")
-    dados$Email <- tolower(dados$Email)
+    dados$email_aluno[email_invalido_logico] <- NA
+    nome_limpo <- tolower(gsub(" ", "", dados$nome_aluno))
+    dados$email_aluno[is.na(dados$email_aluno)] <- paste0(nome_limpo[is.na(dados$email_aluno)], "@unifeob.com")
+    dados$email_aluno <- tolower(dados$email_aluno)
     return(dados)
   }
 
@@ -128,14 +128,14 @@ if (nrow(dados) > 0) {
   }
 
   limpar_renda <- function(dados) {
-    dados$Renda <- as.numeric(as.character(dados$Renda))
-    Q1 <- quantile(dados$Renda, 0.25, na.rm = TRUE)
-    Q3 <- quantile(dados$Renda, 0.75, na.rm = TRUE)
+    dados$renda_familiar <- as.numeric(as.character(dados$renda_familiar))
+    Q1 <- quantile(dados$renda_familiar, 0.25, na.rm = TRUE)
+    Q3 <- quantile(dados$renda_familiar, 0.75, na.rm = TRUE)
     IQR <- Q3 - Q1
     limite_inferior <- Q1 - 1.5 * IQR
     limite_superior <- Q3 + 1.5 * IQR
-    mediana <- median(dados$Renda[dados$Renda >= limite_inferior & dados$Renda <= limite_superior], na.rm = TRUE)
-    dados$Renda[dados$Renda < limite_inferior | dados$Renda > limite_superior | is.na(dados$Renda)] <- mediana
+    mediana <- median(dados$renda_familiar[dados$renda_familiar >= limite_inferior & dados$renda_familiar <= limite_superior], na.rm = TRUE)
+    dados$renda_familiar[dados$renda_familiar < limite_inferior | dados$renda_familiar > limite_superior | is.na(dados$renda_familiar)] <- mediana
     return(dados)
   }
 
