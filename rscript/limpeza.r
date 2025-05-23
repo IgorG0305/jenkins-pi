@@ -1,5 +1,3 @@
-# processa_dados.R
-
 library(DBI)
 library(RMariaDB)
 library(dplyr)
@@ -19,9 +17,9 @@ dados <- dbGetQuery(con, query)
 
 if (nrow(dados) > 0) {
 
-  # Renomeando colunas para coincidir com as funções
-  colnames(dados) <- c(
-   "aluno_id", "nome_aluno", "email_aluno", "curso", "status", "turma", "sexo", "idade",
+  # Renomeando colunas para letras minúsculas
+  colnames(dados) <- tolower(c(
+    "aluno_id", "nome_aluno", "email_aluno", "curso", "status", "turma", "sexo", "idade",
     "trabalha", "renda_familiar", "acompanhamento_medico", "tem_filho", "estado_civil",
     "semestre", "bimestre",
     "aula_1", "professor_1", "notas_1", "faltas_1", "desempenho_1",
@@ -30,9 +28,8 @@ if (nrow(dados) > 0) {
     "aula_4", "professor_4", "notas_4", "faltas_4", "desempenho_4",
     "aula_5", "professor_5", "notas_5", "faltas_5", "desempenho_5",
     "risco_evasao", "processado"
-  )
+  ))
 
-  # Funções de limpeza (sem alterações necessárias nelas)
   limpar_nomes <- function(dados) {
     dados$nome_aluno <- as.character(dados$nome_aluno)
     dados$email_aluno <- as.character(dados$email_aluno)
@@ -77,7 +74,7 @@ if (nrow(dados) > 0) {
   }
 
   limpar_cursos <- function(dados) {
-    dados$Curso <- as.character(dados$Curso)
+    dados$curso <- as.character(dados$curso)
     insercoes <- c("Administração", "Direito", "Engenharia", "Pedagogia", "Psicologia", "Engenharia Civil", "Engenharia Elétrica",
                    "Engenharia Mecânica", "Engenharia de Produção", "Arquitetura e Urbanismo", "Medicina", "Enfermagem",
                    "Biomedicina", "Educação Física", "Fisioterapia", "Odontologia", "Farmácia", "Veterinária", "Nutrição",
@@ -91,9 +88,9 @@ if (nrow(dados) > 0) {
                    "Secretariado Executivo", "Turismo", "Hotelaria", "Ciências Sociais", "Estatística", "Biblioteconomia",
                    "Museologia", "Educação Especial", "Segurança do Trabalho", "Radiologia")
     i <- 1
-    while (sum(is.na(dados$Curso)) > 0) {
-      posicao <- which(is.na(dados$Curso))[1]
-      dados$Curso[posicao] <- insercoes[i]
+    while (sum(is.na(dados$curso)) > 0) {
+      posicao <- which(is.na(dados$curso))[1]
+      dados$curso[posicao] <- insercoes[i]
       i <- i + 1
       if (i > length(insercoes)) {
         i <- 1
@@ -103,27 +100,27 @@ if (nrow(dados) > 0) {
   }
 
   limpar_sexo <- function(dados) {
-    dados$Sexo <- tolower(dados$Sexo)
-    dados$Sexo[dados$Sexo %in% c("masculino", "masc", "m")] <- "masculino"
-    dados$Sexo[dados$Sexo %in% c("feminino", "fem", "feminno")] <- "feminino"
-    dados$Sexo[!dados$Sexo %in% c("masculino", "feminino")] <- NA
-    sexo_tab <- table(dados$Sexo)
+    dados$sexo <- tolower(dados$sexo)
+    dados$sexo[dados$sexo %in% c("masculino", "masc", "m")] <- "masculino"
+    dados$sexo[dados$sexo %in% c("feminino", "fem", "feminno")] <- "feminino"
+    dados$sexo[!dados$sexo %in% c("masculino", "feminino")] <- NA
+    sexo_tab <- table(dados$sexo)
     if (length(sexo_tab) >= 2) {
       sexo_prop <- as.numeric(sexo_tab) / sum(sexo_tab)
       sexo_names <- names(sexo_tab)
-      n_na <- sum(is.na(dados$Sexo))
+      n_na <- sum(is.na(dados$sexo))
       set.seed(123)
-      dados$Sexo[is.na(dados$Sexo)] <- sample(sexo_names, size = n_na, replace = TRUE, prob = sexo_prop)
+      dados$sexo[is.na(dados$sexo)] <- sample(sexo_names, size = n_na, replace = TRUE, prob = sexo_prop)
     } else {
-      warning("Não há dados suficientes para aplicar o rateio proporcional em Sexo.")
+      warning("Não há dados suficientes para aplicar o rateio proporcional em sexo.")
     }
     return(dados)
   }
 
   limpar_idade <- function(dados) {
-    dados$Idade <- as.numeric(as.character(dados$Idade))
-    mediana_idade <- median(dados$Idade[dados$Idade >= 17 & dados$Idade <= 80], na.rm = TRUE)
-    dados$Idade[dados$Idade < 17 | dados$Idade > 80 | is.na(dados$Idade)] <- mediana_idade
+    dados$idade <- as.numeric(as.character(dados$idade))
+    mediana_idade <- median(dados$idade[dados$idade >= 17 & dados$idade <= 80], na.rm = TRUE)
+    dados$idade[dados$idade < 17 | dados$idade > 80 | is.na(dados$idade)] <- mediana_idade
     return(dados)
   }
 
@@ -140,26 +137,26 @@ if (nrow(dados) > 0) {
   }
 
   limpar_estado_civil <- function(dados) {
-    dados$Estado_Civil <- tolower(trimws(dados$Estado_Civil))
-    dados$Estado_Civil[dados$Estado_Civil %in% c("solteiro", "solteira", "s")] <- "solteiro"
-    dados$Estado_Civil[dados$Estado_Civil %in% c("casado", "casada", "c", "casadoo")] <- "casado"
-    dados$Estado_Civil[dados$Estado_Civil %in% c("divorciado", "divorciada", "d")] <- "divorciado"
-    dados$Estado_Civil[dados$Estado_Civil %in% c("viuvo", "viúva", "v")] <- "viuvo"
-    dados$Estado_Civil[!dados$Estado_Civil %in% c("solteiro", "casado", "divorciado", "viuvo")] <- NA
-    estado_tab <- table(dados$Estado_Civil)
+    dados$estado_civil <- tolower(trimws(dados$estado_civil))
+    dados$estado_civil[dados$estado_civil %in% c("solteiro", "solteira", "s")] <- "solteiro"
+    dados$estado_civil[dados$estado_civil %in% c("casado", "casada", "c", "casadoo")] <- "casado"
+    dados$estado_civil[dados$estado_civil %in% c("divorciado", "divorciada", "d")] <- "divorciado"
+    dados$estado_civil[dados$estado_civil %in% c("viuvo", "viúva", "v")] <- "viuvo"
+    dados$estado_civil[!dados$estado_civil %in% c("solteiro", "casado", "divorciado", "viuvo")] <- NA
+    estado_tab <- table(dados$estado_civil)
     if (length(estado_tab) >= 2) {
       estado_prop <- as.numeric(estado_tab) / sum(estado_tab)
       estado_names <- names(estado_tab)
-      n_na <- sum(is.na(dados$Estado_Civil))
+      n_na <- sum(is.na(dados$estado_civil))
       set.seed(456)
-      dados$Estado_Civil[is.na(dados$Estado_Civil)] <- sample(estado_names, size = n_na, replace = TRUE, prob = estado_prop)
+      dados$estado_civil[is.na(dados$estado_civil)] <- sample(estado_names, size = n_na, replace = TRUE, prob = estado_prop)
     } else {
-      warning("Não há dados suficientes para aplicar o rateio proporcional em Estado Civil.")
+      warning("Não há dados suficientes para aplicar o rateio proporcional em estado_civil.")
     }
     return(dados)
   }
 
-  # Aplicar limpeza
+  # Aplicar funções
   dados <- limpar_nomes(dados)
   dados <- limpar_emails(dados)
   dados <- limpar_cursos(dados)
@@ -177,22 +174,22 @@ if (nrow(dados) > 0) {
 
   # Cálculo do risco de evasão
   calcula_risco <- function(linha) {
-    notas <- unlist(linha[grep("^Nota_", names(linha))])
-    faltas <- unlist(linha[grep("^Falta_Materia_", names(linha))])
+    notas <- unlist(linha[grep("^notas_", names(linha))])
+    faltas <- unlist(linha[grep("^faltas_", names(linha))])
     if (mean(as.numeric(notas)) < 6 || any(as.numeric(faltas) > 5)) {
       return(1)
     } else {
       return(0)
     }
   }
-  dados$Risco_de_Evasao <- apply(dados, 1, calcula_risco)
+  dados$risco_evasao <- apply(dados, 1, calcula_risco)
 
   # Grava os dados tratados
   dbWriteTable(con, "alunos_tratados", dados, append = TRUE, row.names = FALSE)
 
   # Atualiza os registros como processados
   ids <- paste(dados$aluno_id, collapse = ",")
-  dbExecute(con, sprintf("UPDATE alunos SET processado = 1 WHERE ID IN (%s)", ids))
+  dbExecute(con, sprintf("UPDATE alunos SET processado = 1 WHERE id IN (%s)", ids))
 
   cat(paste(Sys.time(), "- Processados", nrow(dados), "registros.\n"))
 
