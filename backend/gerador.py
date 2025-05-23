@@ -1,6 +1,5 @@
 from faker import Faker
 import random
-import time
 import pandas as pd
 from sqlalchemy import create_engine
 
@@ -114,29 +113,31 @@ def gerar_alunos(inicio_id, quantidade):
     return alunos
 
 def main():
-    aluno_id_atual = 1
+    # Ajuste para sempre começar do último ID + 1
+    with engine.connect() as conn:
+        result = conn.execute(f"SELECT MAX(aluno_id) FROM {tabela_destino}")
+        max_id = result.scalar()
+        if max_id is None:
+            max_id = 0
+
+    aluno_id_atual = max_id + 1
     lote = 1000
 
-    print("Iniciando geração e inserção contínua de alunos...")
-    while True:
-        alunos = gerar_alunos(aluno_id_atual, lote)
+    print(f"Iniciando geração de {lote} alunos a partir do ID {aluno_id_atual}...")
 
-        # Converte para dicionário e adiciona o campo "processado" = 0
-        dados = []
-        for aluno in alunos:
-            d = aluno.to_dict()
-            d['processado'] = 0
-            dados.append(d)
+    alunos = gerar_alunos(aluno_id_atual, lote)
 
-        df = pd.DataFrame(dados)
-        df.to_sql(tabela_destino, con=engine, index=False, if_exists='append')
+    # Converte para dicionário e adiciona o campo "processado" = 0
+    dados = []
+    for aluno in alunos:
+        d = aluno.to_dict()
+        d['processado'] = 0
+        dados.append(d)
 
-        print(f"{len(alunos)} alunos inseridos. Último aluno_id: {aluno_id_atual + lote - 1}")
+    df = pd.DataFrame(dados)
+    df.to_sql(tabela_destino, con=engine, index=False, if_exists='append')
 
-        aluno_id_atual += lote
-
-        print("Aguardando 3 minutos para próximo lote...")
-        time.sleep(180)  # 180 segundos = 3 minutos
+    print(f"{len(alunos)} alunos inseridos. Último aluno_id: {aluno_id_atual + lote - 1}")
 
 if __name__ == "__main__":
     main()

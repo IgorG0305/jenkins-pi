@@ -47,8 +47,9 @@ services:
   rscript:
     image: superlike1/rscript-app:latest
     depends_on:
-      gerador:
-        condition: service_started
+      db:
+        condition: service_healthy
+    command: Rscript processa_dados.R
 
   grafana:
     image: grafana/grafana:latest
