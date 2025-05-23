@@ -42,6 +42,14 @@ def validar_aluno_dict(d):
         d['estado_civil'] = random.choice(estado_civil_list)
     if d['status'] not in status_list:
         d['status'] = random.choice(status_list)
+    try:
+        d['idade'] = int(d['idade'])
+    except (ValueError, TypeError):
+        d['idade'] = random.randint(17, 70)
+    try:
+        d['renda_familiar'] = float(d['renda_familiar'])
+    except (ValueError, TypeError):
+        d['renda_familiar'] = random.randint(800, 10000)
     return d
 
 def gerar_alunos(inicio_id, quantidade):
