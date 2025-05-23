@@ -28,7 +28,7 @@ if (nrow(dados) > 0) {
     "Aula_2", "Professor_2", "Nota_2", "Falta_Materia_2", "Desempenho_2", 
     "Aula_3", "Professor_3", "Nota_3", "Falta_Materia_3", "Desempenho_3", 
     "Aula_4", "Professor_4", "Nota_4", "Falta_Materia_4", "Desempenho_4", 
-    "Aula_5", "Professor_5", "Nota_5", "Falta_Materia_5", "Desempenho_5"
+    "Aula_5", "Professor_5", "Nota_5", "Falta_Materia_5", "Desempenho_5", "Risco_evasao", "Processado"
   )
 
   limpar_nomes <- function(dados) {

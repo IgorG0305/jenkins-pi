@@ -19,7 +19,6 @@ CREATE TABLE alunos (
     estado_civil VARCHAR(50),
     semestre INT,
     bimestre INT,
-    processado BOOL DEFAULT 0,
 
    
     aula_1 VARCHAR(100),
@@ -52,8 +51,9 @@ CREATE TABLE alunos (
     faltas_5 INT,
     desempenho_5 VARCHAR(50),
    
-    risco_evasao INT
-   
+    risco_evasao INT,
+    processado BOOL DEFAULT 0
+    
 );
 
 DROP TABLE IF EXISTS alunos_tratados;
