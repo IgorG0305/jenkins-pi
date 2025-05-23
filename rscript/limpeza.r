@@ -18,17 +18,7 @@ dados <- dbGetQuery(con, query)
 if (nrow(dados) > 0) {
 
   # Renomeando colunas para letras minúsculas
-  colnames(dados) <- tolower(c(
-    "aluno_id", "nome_aluno", "email_aluno", "curso", "status", "turma", "sexo", "idade",
-    "trabalha", "renda_familiar", "acompanhamento_medico", "tem_filho", "estado_civil",
-    "semestre", "bimestre",
-    "aula_1", "professor_1", "notas_1", "faltas_1", "desempenho_1",
-    "aula_2", "professor_2", "notas_2", "faltas_2", "desempenho_2",
-    "aula_3", "professor_3", "notas_3", "faltas_3", "desempenho_3",
-    "aula_4", "professor_4", "notas_4", "faltas_4", "desempenho_4",
-    "aula_5", "professor_5", "notas_5", "faltas_5", "desempenho_5",
-    "risco_evasao", "processado"
-  ))
+  colnames(dados) <- tolower(names(dados))
 
   limpar_nomes <- function(dados) {
     dados$nome_aluno <- as.character(dados$nome_aluno)
@@ -189,7 +179,7 @@ if (nrow(dados) > 0) {
 
   # Atualiza os registros como processados
   ids <- paste(dados$aluno_id, collapse = ",")
-  dbExecute(con, sprintf("UPDATE alunos SET processado = 1 WHERE id IN (%s)", ids))
+  dbExecute(con, sprintf("UPDATE alunos SET processado = 1 WHERE aluno_id IN (%s)", ids))
 
   cat(paste(Sys.time(), "- Processados", nrow(dados), "registros.\n"))
 
