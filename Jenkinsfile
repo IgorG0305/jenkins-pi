@@ -8,13 +8,32 @@ pipeline {
     }
 
     stages {
+        stage('Build Imagens') {
+            steps {
+                script {
+                    echo "Construindo imagens com --no-cache..."
+                    sh "docker build --no-cache -t ${IMAGE_GERADOR}:latest ./backend"
+                    sh "docker build --no-cache -t ${IMAGE_RSCRIPT}:latest ./rscript"
+                }
+            }
+        }
+
         stage('Subir DB') {
             steps {
                 script {
                     echo "Subindo banco de dados MySQL..."
                     sh 'docker-compose up -d db'
                     echo "Aguardando banco de dados ficar pronto..."
-                    sh 'sleep 15'
+                    sh '''
+                        for i in {1..10}; do
+                            if docker exec mysql_db mysqladmin ping -h"localhost" --silent; then
+                                echo "MySQL está pronto!"
+                                break
+                            fi
+                            echo "Aguardando MySQL..."
+                            sleep 5
+                        done
+                    '''
                 }
             }
         }
@@ -25,13 +44,10 @@ pipeline {
                     int totalLotes = 10
                     for (int i = 1; i <= totalLotes; i++) {
                         echo "=== Iteração ${i} de ${totalLotes} ==="
-
                         echo "Executando gerador (1000 alunos)..."
                         sh 'docker-compose run --rm gerador'
-
                         echo "Executando processamento R..."
                         sh 'docker-compose run --rm rscript'
-
                         if (i < totalLotes) {
                             echo "Aguardando 3 minutos antes do próximo lote..."
                             sh 'sleep 180'
@@ -55,6 +71,7 @@ pipeline {
         always {
             echo "Limpando Docker..."
             sh 'docker system prune -f || true'
+            sh 'docker rmi $(docker images -f "dangling=true" -q) || true'
         }
     }
 }
