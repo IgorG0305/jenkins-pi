@@ -168,7 +168,10 @@ if (nrow(dados) > 0) {
 
   # Tratamento de valores ausentes
   dados <- dados %>%
-    mutate(across(everything(), ~ replace_na(., 0)))
+    mutate(
+    across(where(is.numeric), ~replace_na(., 0)),
+    across(where(is.character), ~replace_na(., "desconhecido"))
+  )
 
   # Lógica de risco de evasão
   calcula_risco <- function(linha) {
