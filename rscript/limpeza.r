@@ -19,18 +19,20 @@ dados <- dbGetQuery(con, query)
 
 if (nrow(dados) > 0) {
 
-  # Renomeando colunas (ajuste conforme necessário)
+  # Renomeando colunas para coincidir com as funções
   colnames(dados) <- c(
-    "ID", "Nome", "Email", "Curso", "Status", "Turma", "Sexo", "Idade", 
-    "Trabalha", "Renda", "Acompanhamento_Medico", "Tem_Filho", "Estado_Civil", 
-    "Semestre", "Bimestre", 
-    "Aula_1", "Professor_1", "Nota_1", "Falta_Materia_1", "Desempenho_1", 
-    "Aula_2", "Professor_2", "Nota_2", "Falta_Materia_2", "Desempenho_2", 
-    "Aula_3", "Professor_3", "Nota_3", "Falta_Materia_3", "Desempenho_3", 
-    "Aula_4", "Professor_4", "Nota_4", "Falta_Materia_4", "Desempenho_4", 
-    "Aula_5", "Professor_5", "Nota_5", "Falta_Materia_5", "Desempenho_5", "Risco_evasao", "Processado"
+    "aluno_id", "Nome", "Email", "Curso", "status", "turma", "Sexo", "Idade",
+    "trabalha", "Renda", "acompanhamento_medico", "tem_filho", "Estado_Civil",
+    "semestre", "bimestre",
+    "aula_1", "professor_1", "Nota_1", "Falta_Materia_1", "desempenho_1",
+    "aula_2", "professor_2", "Nota_2", "Falta_Materia_2", "desempenho_2",
+    "aula_3", "professor_3", "Nota_3", "Falta_Materia_3", "desempenho_3",
+    "aula_4", "professor_4", "Nota_4", "Falta_Materia_4", "desempenho_4",
+    "aula_5", "professor_5", "Nota_5", "Falta_Materia_5", "desempenho_5",
+    "risco_evasao", "processado"
   )
 
+  # Funções de limpeza (sem alterações necessárias nelas)
   limpar_nomes <- function(dados) {
     dados$Nome <- as.character(dados$Nome)
     dados$Email <- as.character(dados$Email)
@@ -73,21 +75,21 @@ if (nrow(dados) > 0) {
     dados$Email <- tolower(dados$Email)
     return(dados)
   }
-  
+
   limpar_cursos <- function(dados) {
     dados$Curso <- as.character(dados$Curso)
-    insercoes <- c('Administração', 'Direito', 'Engenharia', 'Pedagogia', 'Psicologia', 'Engenharia Civil', 'Engenharia Elétrica',
-                   'Engenharia Mecânica', 'Engenharia de Produção', 'Arquitetura e Urbanismo', 'Medicina', 'Enfermagem',
-                   'Biomedicina', 'Educação Física', 'Fisioterapia', 'Odontologia', 'Farmácia', 'Veterinária', 'Nutrição',
-                   'Computação', 'Ciência da Computação', 'Sistemas de Informação', 'Análise e Desenvolvimento de Sistemas',
-                   'Jogos Digitais', 'Redes de Computadores', 'Banco de Dados', 'Matemática', 'Física', 'Química', 'Biologia',
-                   'Geografia', 'História', 'Letras', 'Serviço Social', 'Relações Internacionais', 'Jornalismo',
-                   'Publicidade e Propaganda', 'Design Gráfico', 'Marketing', 'Recursos Humanos', 'Engenharia Ambiental',
-                   'Engenharia de Alimentos', 'Engenharia Química', 'Zootecnia', 'Gastronomia', 'Moda', 'Teatro', 'Música',
-                   'Dança', 'Cinema', 'Artes Visuais', 'Ciências Contábeis', 'Ciências Econômicas', 'Teologia',
-                   'Fonoaudiologia', 'Terapia Ocupacional', 'Gestão Pública', 'Gestão Comercial', 'Logística',
-                   'Secretariado Executivo', 'Turismo', 'Hotelaria', 'Ciências Sociais', 'Estatística', 'Biblioteconomia',
-                   'Museologia', 'Educação Especial', 'Segurança do Trabalho', 'Radiologia')
+    insercoes <- c("Administração", "Direito", "Engenharia", "Pedagogia", "Psicologia", "Engenharia Civil", "Engenharia Elétrica",
+                   "Engenharia Mecânica", "Engenharia de Produção", "Arquitetura e Urbanismo", "Medicina", "Enfermagem",
+                   "Biomedicina", "Educação Física", "Fisioterapia", "Odontologia", "Farmácia", "Veterinária", "Nutrição",
+                   "Computação", "Ciência da Computação", "Sistemas de Informação", "Análise e Desenvolvimento de Sistemas",
+                   "Jogos Digitais", "Redes de Computadores", "Banco de Dados", "Matemática", "Física", "Química", "Biologia",
+                   "Geografia", "História", "Letras", "Serviço Social", "Relações Internacionais", "Jornalismo",
+                   "Publicidade e Propaganda", "Design Gráfico", "Marketing", "Recursos Humanos", "Engenharia Ambiental",
+                   "Engenharia de Alimentos", "Engenharia Química", "Zootecnia", "Gastronomia", "Moda", "Teatro", "Música",
+                   "Dança", "Cinema", "Artes Visuais", "Ciências Contábeis", "Ciências Econômicas", "Teologia",
+                   "Fonoaudiologia", "Terapia Ocupacional", "Gestão Pública", "Gestão Comercial", "Logística",
+                   "Secretariado Executivo", "Turismo", "Hotelaria", "Ciências Sociais", "Estatística", "Biblioteconomia",
+                   "Museologia", "Educação Especial", "Segurança do Trabalho", "Radiologia")
     i <- 1
     while (sum(is.na(dados$Curso)) > 0) {
       posicao <- which(is.na(dados$Curso))[1]
@@ -99,7 +101,7 @@ if (nrow(dados) > 0) {
     }
     return(dados)
   }
-  
+
   limpar_sexo <- function(dados) {
     dados$Sexo <- tolower(dados$Sexo)
     dados$Sexo[dados$Sexo %in% c("masculino", "masc", "m")] <- "masculino"
@@ -117,14 +119,14 @@ if (nrow(dados) > 0) {
     }
     return(dados)
   }
-  
+
   limpar_idade <- function(dados) {
     dados$Idade <- as.numeric(as.character(dados$Idade))
     mediana_idade <- median(dados$Idade[dados$Idade >= 17 & dados$Idade <= 80], na.rm = TRUE)
     dados$Idade[dados$Idade < 17 | dados$Idade > 80 | is.na(dados$Idade)] <- mediana_idade
     return(dados)
   }
-  
+
   limpar_renda <- function(dados) {
     dados$Renda <- as.numeric(as.character(dados$Renda))
     Q1 <- quantile(dados$Renda, 0.25, na.rm = TRUE)
@@ -136,7 +138,7 @@ if (nrow(dados) > 0) {
     dados$Renda[dados$Renda < limite_inferior | dados$Renda > limite_superior | is.na(dados$Renda)] <- mediana
     return(dados)
   }
-  
+
   limpar_estado_civil <- function(dados) {
     dados$Estado_Civil <- tolower(trimws(dados$Estado_Civil))
     dados$Estado_Civil[dados$Estado_Civil %in% c("solteiro", "solteira", "s")] <- "solteiro"
@@ -156,7 +158,7 @@ if (nrow(dados) > 0) {
     }
     return(dados)
   }
-  
+
   # Aplicar limpeza
   dados <- limpar_nomes(dados)
   dados <- limpar_emails(dados)
@@ -169,14 +171,14 @@ if (nrow(dados) > 0) {
   # Tratamento de valores ausentes
   dados <- dados %>%
     mutate(
-    across(where(is.numeric), ~replace_na(., 0)),
-    across(where(is.character), ~replace_na(., "desconhecido"))
-  )
+      across(where(is.numeric), ~replace_na(., 0)),
+      across(where(is.character), ~replace_na(., "desconhecido"))
+    )
 
-  # Lógica de risco de evasão
+  # Cálculo do risco de evasão
   calcula_risco <- function(linha) {
-    notas <- unlist(linha[grep("Nota_", names(linha))])
-    faltas <- unlist(linha[grep("Falta_Materia_", names(linha))])
+    notas <- unlist(linha[grep("^Nota_", names(linha))])
+    faltas <- unlist(linha[grep("^Falta_Materia_", names(linha))])
     if (mean(as.numeric(notas)) < 6 || any(as.numeric(faltas) > 5)) {
       return(1)
     } else {
@@ -188,8 +190,8 @@ if (nrow(dados) > 0) {
   # Grava os dados tratados
   dbWriteTable(con, "alunos_tratados", dados, append = TRUE, row.names = FALSE)
 
-  # Atualiza como processado
-  ids <- paste(dados$ID, collapse = ",")
+  # Atualiza os registros como processados
+  ids <- paste(dados$aluno_id, collapse = ",")
   dbExecute(con, sprintf("UPDATE alunos SET processado = 1 WHERE ID IN (%s)", ids))
 
   cat(paste(Sys.time(), "- Processados", nrow(dados), "registros.\n"))
