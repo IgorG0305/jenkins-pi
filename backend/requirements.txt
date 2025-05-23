@@ -4,3 +4,4 @@ pandas
 faker
 pymysql
 sqlalchemy
+cryptography
