@@ -2,7 +2,7 @@ FROM r-base
 
 WORKDIR /app
 
-# Instala dependências do sistema para o rmarkdown e outras libs comuns
+# Instalar dependências do sistema
 RUN apt-get update && apt-get install -y \
     pandoc \
     libcurl4-openssl-dev \
@@ -13,16 +13,15 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    libmariadb-dev \
+    libmariadbclient-dev \
     && apt-get clean
 
-# Instala o pacote rmarkdown (e outros se quiser)
-RUN R -e "install.packages('rmarkdown', repos='http://cran.rstudio.com')"
-RUN R -e "install.packages(c('RMariaDB', 'DBI', 'tools', 'dplyr', 'tidyr'), repos='https://cloud.r-project.org/')"
-# Cria diretório de trabalho
-WORKDIR /app
+# Instalar pacotes R
+RUN R -e "install.packages(c('rmarkdown', 'RMariaDB', 'DBI', 'tools', 'dplyr', 'tidyr'), repos='https://cloud.r-project.org/')"
 
-# Copia apenas o script R para a imagem
+# Copiar o script
 COPY limpeza.r /app/limpeza.r
 
-# Define o comando de execução
+# Comando de execução padrão
 CMD ["Rscript", "limpeza.r"]
