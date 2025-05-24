@@ -1,14 +1,13 @@
 FROM bitnami/spark:latest
 
-# Instala dependências extras (opcional)
-RUN apt-get update && apt-get install -y python3-pip \
-    && pip3 install pandas seaborn matplotlib scikit-learn imbalanced-learn plotly sqlalchemy nltk pymysql
+RUN apt-get update && apt-get install -y python3-pip
 
-# Baixar recursos do nltk
+RUN pip3 install pandas pyspark seaborn matplotlib scikit-learn imbalanced-learn plotly sqlalchemy nltk pymysql
+
 RUN python3 -m nltk.downloader stopwords
 
-# Copia o script Python para dentro do container
+RUN mkdir -p /opt/spark/scripts
+
 COPY projeto_bigdata.py /opt/spark/scripts/projeto_bigdata.py
 
-# Comando padrão (altere se quiser rodar automaticamente)
 CMD ["bash"]
