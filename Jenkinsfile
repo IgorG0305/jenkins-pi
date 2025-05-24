@@ -3,11 +3,12 @@ pipeline {
 
     environment {
         DOCKER_HUB_USER = 'superlike1'
-        IMAGE_GERADOR  = "${DOCKER_HUB_USER}/gerador-app"
-        IMAGE_RSCRIPT  = "${DOCKER_HUB_USER}/rscript-app"
-        IMAGE_MYSQL    = "${DOCKER_HUB_USER}/mysql-app"
-        IMAGE_FLASK    = "${DOCKER_HUB_USER}/flask-app"
-        IMAGE_BACKEND  = "${DOCKER_HUB_USER}/backend-app"
+        IMAGE_GERADOR   = "${DOCKER_HUB_USER}/gerador-app"
+        IMAGE_RSCRIPT   = "${DOCKER_HUB_USER}/rscript-app"
+        IMAGE_MYSQL     = "${DOCKER_HUB_USER}/mysql-app"
+        IMAGE_FLASK     = "${DOCKER_HUB_USER}/flask-app"
+        IMAGE_BACKEND   = "${DOCKER_HUB_USER}/backend-app"
+        IMAGE_SPARK     = "${DOCKER_HUB_USER}/spark-app"
     }
 
     stages {
@@ -20,6 +21,7 @@ pipeline {
                     sh "docker build --no-cache -t ${IMAGE_MYSQL}:latest ./mysql"
                     sh "docker build --no-cache -t ${IMAGE_FLASK}:latest ./api"
                     sh "docker build --no-cache -t ${IMAGE_BACKEND}:latest ./backend"
+                    sh "docker build --no-cache -t ${IMAGE_SPARK}:latest ./spark"
                 }
             }
         }
@@ -28,7 +30,7 @@ pipeline {
             steps {
                 script {
                     echo "Subindo todos os serviços necessários..."
-                    sh 'docker-compose up -d db flaskapi backend frontend grafana prometheus loki'
+                    sh 'docker-compose up -d db flaskapi backend frontend grafana prometheus loki spark-master spark-worker'
 
                     echo "Aguardando banco de dados ficar pronto..."
                     sh '''
@@ -64,11 +66,17 @@ pipeline {
             }
         }
 
-        stage('Finalização') {
+        stage('Submit Spark Job') {
             steps {
                 script {
-                    echo "Finalizando e removendo containers..."
-                    sh 'docker-compose down --remove-orphans'
+                    echo "Submetendo job Spark..."
+                    sh '''
+                    docker exec spark-master spark-submit \
+                        --master spark://spark-master:7077 \
+                        --class org.apache.spark.examples.SparkPi \
+                        /opt/spark/examples/jars/spark-examples_2.12-*.jar \
+                        10
+                    '''
                 }
             }
         }

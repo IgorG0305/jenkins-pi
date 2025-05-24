@@ -75,11 +75,39 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9010:9010" 
+      - "9010:9010"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro 
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
+
+  spark-master:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "7077:7077"
+      - "8080:8080"
+    networks:
+      - default
+
+  spark-worker:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile
+    container_name: spark-worker
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    ports:
+      - "8081:8081"
+    networks:
+      - default
 
 volumes:
   db_data:
