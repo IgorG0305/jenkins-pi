@@ -26,29 +26,31 @@ pipeline {
             }
         }
 
-        stage('Subir Serviços') {
-            steps {
-                script {
-                    echo "Removendo containers antigos..."
-                    sh 'docker-compose down -v || true'
+   stage('Subir Serviços') {
+    steps {
+        script {
+            echo "Removendo containers antigos..."
+            sh 'docker-compose down -v || true'
+            sh 'docker rm -f mysql_db || true'
 
-                    echo "Subindo todos os serviços necessários..."
-                    sh 'docker-compose up -d db flaskapi backend frontend grafana prometheus loki spark-master spark-worker'
+            echo "Subindo todos os serviços necessários..."
+            sh 'docker-compose up -d db flaskapi backend frontend grafana prometheus loki spark-master spark-worker'
 
-                    echo "Aguardando banco de dados ficar pronto..."
-                    sh '''
-                        for i in {1..10}; do
-                            if docker exec mysql_db mysqladmin ping -h"localhost" --silent; then
-                                echo "MySQL está pronto!"
-                                break
-                            fi
-                            echo "Aguardando MySQL..."
-                            sleep 5
-                        done
-                    '''
-                }
-            }
+            echo "Aguardando banco de dados ficar pronto..."
+            sh '''
+                for i in {1..10}; do
+                    if docker exec mysql_db mysqladmin ping -h"localhost" --silent; then
+                        echo "MySQL está pronto!"
+                        break
+                    fi
+                    echo "Aguardando MySQL..."
+                    sleep 5
+                done
+            '''
         }
+    }
+}
+
 
         stage('Processo Iterativo') {
             steps {
