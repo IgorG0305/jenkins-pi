@@ -80,6 +80,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Executar Projeto Big Data') {
+            steps {
+                script {
+                    echo "Executando projeto_bigdata.py no Spark..."
+                    sh '''
+                    docker exec spark-master python3 /opt/spark/scripts/projeto_bigdata.py
+                    '''
+                }
+            }
+        }
     }
 
     post {
