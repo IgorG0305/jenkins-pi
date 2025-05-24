@@ -29,8 +29,32 @@ pipeline {
 stage('Subir Serviços') {
     steps {
         script {
-            echo "Removendo containers antigos..."
-            sh 'docker rm -f mysql_db || true'
+            echo "Listando containers existentes..."
+            sh 'docker ps -a'
+
+            echo "Removendo container mysql_db manualmente, se existir..."
+sh '''
+CONTAINER=$(docker ps -a --format '{{.Names}}' | grep "^mysql_db$" || true)
+if [ ! -z "$CONTAINER" ]; then
+  echo "Removendo container $CONTAINER..."
+  docker rm -f "$CONTAINER" || true
+  # Aguarda até o container sumir de fato
+  for i in {1..5}; do
+    EXISTS=$(docker ps -a --format '{{.Names}}' | grep "^mysql_db$" || true)
+    if [ -z "$EXISTS" ]; then
+      echo "Container mysql_db removido."
+      break
+    fi
+    echo "Aguardando remoção do container mysql_db..."
+    sleep 2
+  done
+else
+  echo "Nenhum container mysql_db encontrado."
+fi
+'''
+// ...existing code...
+
+            echo "Removendo containers do docker-compose..."
             sh 'docker-compose down -v || true'
 
             echo "Subindo todos os serviços necessários..."
@@ -50,6 +74,7 @@ stage('Subir Serviços') {
         }
     }
 }
+
 
 
         stage('Processo Iterativo') {
