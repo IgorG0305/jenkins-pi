@@ -26,56 +26,55 @@ pipeline {
             }
         }
 
-stage('Subir Serviços') {
-    steps {
-        script {
-            echo "Listando containers existentes..."
-            sh 'docker ps -a'
+        stage('Subir Serviços') {
+            steps {
+                script {
+                    echo "Listando containers existentes..."
+                    sh 'docker ps -a'
 
-            echo "Removendo container mysql_db manualmente, se existir..."
-sh '''
-CONTAINER=$(docker ps -a --format '{{.Names}}' | grep "^mysql_db$" || true)
-if [ ! -z "$CONTAINER" ]; then
-  echo "Removendo container $CONTAINER..."
-  docker rm -f "$CONTAINER" || true
-  # Aguarda até o container sumir de fato
-  for i in {1..5}; do
-    EXISTS=$(docker ps -a --format '{{.Names}}' | grep "^mysql_db$" || true)
-    if [ -z "$EXISTS" ]; then
-      echo "Container mysql_db removido."
-      break
-    fi
-    echo "Aguardando remoção do container mysql_db..."
-    sleep 2
-  done
-else
-  echo "Nenhum container mysql_db encontrado."
-fi
-'''
-// ...existing code...
-
-            echo "Removendo containers do docker-compose..."
-            sh 'docker-compose down -v || true'
-
-            echo "Subindo todos os serviços necessários..."
-            sh 'docker-compose up -d db flaskapi backend frontend grafana prometheus loki spark-master spark-worker'
-
-            echo "Aguardando banco de dados ficar pronto..."
-            sh '''
-                for i in {1..10}; do
-                    if docker exec mysql_db mysqladmin ping -h"localhost" --silent; then
-                        echo "MySQL está pronto!"
-                        break
+                    echo "Removendo containers antigos do MySQL manualmente, se existirem..."
+                    sh '''
+                    CONTAINERS=$(docker ps -a --format '{{.Names}}' | grep "mysql_db" || true)
+                    if [ ! -z "$CONTAINERS" ]; then
+                      echo "Removendo containers: $CONTAINERS"
+                      for C in $CONTAINERS; do
+                        docker rm -f "$C" || true
+                      done
+                      # Aguarda até todos sumirem
+                      for i in {1..5}; do
+                        EXISTS=$(docker ps -a --format '{{.Names}}' | grep "mysql_db" || true)
+                        if [ -z "$EXISTS" ]; then
+                          echo "Todos containers mysql_db removidos."
+                          break
+                        fi
+                        echo "Aguardando remoção dos containers mysql_db..."
+                        sleep 2
+                      done
+                    else
+                      echo "Nenhum container mysql_db encontrado."
                     fi
-                    echo "Aguardando MySQL..."
-                    sleep 5
-                done
-            '''
+                    '''
+
+                    echo "Removendo containers do docker-compose..."
+                    sh 'docker-compose down -v || true'
+
+                    echo "Subindo todos os serviços necessários..."
+                    sh 'docker-compose up -d db flaskapi backend frontend grafana prometheus loki spark-master spark-worker'
+
+                    echo "Aguardando banco de dados ficar pronto..."
+                    sh '''
+                    for i in {1..10}; do
+                        if docker exec $(docker ps --format '{{.Names}}' | grep "mysql_db") mysqladmin ping -h"localhost" --silent; then
+                            echo "MySQL está pronto!"
+                            break
+                        fi
+                        echo "Aguardando MySQL..."
+                        sleep 5
+                    done
+                    '''
+                }
+            }
         }
-    }
-}
-
-
 
         stage('Processo Iterativo') {
             steps {
@@ -124,18 +123,17 @@ fi
     }
 
     post {
-    always {
-        echo "Limpando Docker..."
-        sh 'docker system prune -f || true'
-        sh '''
-        IMAGENS=$(docker images -f "dangling=true" -q)
-        if [ -n "$IMAGENS" ]; then
-          docker rmi $IMAGENS || true
-        else
-          echo "Nenhuma imagem dangling para remover."
-        fi
-        '''
+        always {
+            echo "Limpando Docker..."
+            sh 'docker system prune -f || true'
+            sh '''
+            IMAGENS=$(docker images -f "dangling=true" -q)
+            if [ -n "$IMAGENS" ]; then
+              docker rmi $IMAGENS || true
+            else
+              echo "Nenhuma imagem dangling para remover."
+            fi
+            '''
+        }
     }
-}
-
 }
