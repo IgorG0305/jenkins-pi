@@ -84,15 +84,14 @@ services:
   spark-master:
     build:
       context: ./spark
-      dockerfile: Dockerfile
     container_name: spark-master
     environment:
-      - SPARK_MODE=master
-    ports:
-      - "7077:7077"
-      - "8080:8080"
+      - PYSPARK_PYTHON=python3
+    depends_on:
+      - db
     networks:
       - default
+
 
   spark-worker:
     build:

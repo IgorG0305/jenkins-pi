@@ -1,13 +1,24 @@
-FROM bitnami/spark:latest
+FROM python:3.10-slim
 
-RUN apt-get update && apt-get install -y python3-pip
+# Instala dependências
+RUN pip install --no-cache-dir \
+    pandas \
+    seaborn \
+    matplotlib \
+    scikit-learn \
+    imbalanced-learn \
+    plotly \
+    sqlalchemy \
+    nltk \
+    pymysql \
+    pyspark
 
-RUN pip3 install pandas pyspark seaborn matplotlib scikit-learn imbalanced-learn plotly sqlalchemy nltk pymysql
+# Baixa stopwords
+RUN python -m nltk.downloader stopwords
 
-RUN python3 -m nltk.downloader stopwords
-
-RUN mkdir -p /opt/spark/scripts
-
+# Copia o script
 COPY projeto_bigdata.py /opt/spark/scripts/projeto_bigdata.py
 
-CMD ["bash"]
+WORKDIR /opt/spark/scripts
+
+CMD ["python3", "projeto_bigdata.py"]
