@@ -29,6 +29,9 @@ pipeline {
         stage('Subir Serviços') {
             steps {
                 script {
+                    echo "Removendo containers antigos..."
+                    sh 'docker-compose down -v || true'
+
                     echo "Subindo todos os serviços necessários..."
                     sh 'docker-compose up -d db flaskapi backend frontend grafana prometheus loki spark-master spark-worker'
 
