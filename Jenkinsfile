@@ -97,10 +97,18 @@ pipeline {
     }
 
     post {
-        always {
-            echo "Limpando Docker..."
-            sh 'docker system prune -f || true'
-            sh 'docker rmi $(docker images -f "dangling=true" -q) || true'
-        }
+    always {
+        echo "Limpando Docker..."
+        sh 'docker system prune -f || true'
+        sh '''
+        IMAGENS=$(docker images -f "dangling=true" -q)
+        if [ -n "$IMAGENS" ]; then
+          docker rmi $IMAGENS || true
+        else
+          echo "Nenhuma imagem dangling para remover."
+        fi
+        '''
     }
+}
+
 }
