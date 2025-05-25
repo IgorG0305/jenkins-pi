@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   frontend:
     image: superlike1/frontend-app:latest
@@ -16,8 +18,7 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     command: python gerador.py
 
   flaskapi:
@@ -25,8 +26,7 @@ services:
     ports:
       - "5051:5050"
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 
   db:
     image: mysql:8.0
@@ -47,8 +47,7 @@ services:
   rscript:
     image: superlike1/rscript-app:latest
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     command: Rscript limpeza.r
 
   grafana:
@@ -86,25 +85,29 @@ services:
       context: ./spark
     container_name: spark-master
     environment:
+      - SPARK_MODE=master
       - PYSPARK_PYTHON=python3
+    ports:
+      - "7077:7077"
+      - "8080:8080"
     depends_on:
       - db
     networks:
       - default
-
 
   spark-worker:
     build:
       context: ./spark
       dockerfile: Dockerfile
     container_name: spark-worker
-    depends_on:
-      - spark-master
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
+      - PYSPARK_PYTHON=python3
     ports:
       - "8081:8081"
+    depends_on:
+      - spark-master
     networks:
       - default
 
@@ -112,3 +115,7 @@ volumes:
   db_data:
   grafana_data:
   loki_data:
+
+networks:
+  default:
+    name: jenkins-pi-network
