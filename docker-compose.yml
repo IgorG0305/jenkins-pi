@@ -83,6 +83,7 @@ services:
   spark-master:
     build:
       context: ./spark
+    container_name: spark-master
     environment:
       - SPARK_MODE=master
       - PYSPARK_PYTHON=python3
@@ -91,8 +92,11 @@ services:
       - "8080:8080"
     depends_on:
       - db
+    volumes:
+      - ./spark:/opt/spark/scripts
     networks:
       - default
+
 
   spark-worker:
     build:

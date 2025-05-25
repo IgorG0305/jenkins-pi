@@ -1,24 +1,25 @@
-FROM python:3.10-slim
+FROM bitnami/spark:latest
 
-# Instala dependências
-RUN pip install --no-cache-dir \
-    pandas \
-    seaborn \
-    matplotlib \
-    scikit-learn \
-    imbalanced-learn \
-    plotly \
-    sqlalchemy \
-    nltk \
-    pymysql \
-    pyspark
+USER root
 
-# Baixa stopwords
-RUN python -m nltk.downloader stopwords
+# Instalar dependências do sistema
+RUN apt-get update && apt-get install -y python3-pip python3-dev libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copia o script
+# Instalar bibliotecas Python necessárias
+RUN pip3 install \
+    pandas numpy matplotlib seaborn scikit-learn imbalanced-learn plotly \
+    sqlalchemy nltk pymysql
+
+# Baixar stopwords do NLTK
+RUN python3 -m nltk.downloader stopwords
+
+# Copiar os scripts para dentro do container
 COPY projeto_bigdata.py /opt/spark/scripts/projeto_bigdata.py
+COPY script1.sh /opt/spark/scripts/script1.sh
 
-WORKDIR /opt/spark/scripts
+# Permitir execução
+RUN chmod +x /opt/spark/scripts/script1.sh
 
-CMD ["python3", "projeto_bigdata.py"]
+# Entrypoint padrão
+CMD ["/bin/bash"]

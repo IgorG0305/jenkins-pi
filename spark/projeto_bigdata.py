@@ -75,7 +75,7 @@ from sklearn.metrics import confusion_matrix
 # Configuração da conexão
 usuario = 'root'
 senha = ''
-host = 'localhost'
+host = 'mysql_db'
 porta = 3306
 nome_banco = 'faculdade'
 
