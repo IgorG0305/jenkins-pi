@@ -1,7 +1,47 @@
 # ===============================
 # 📦 Importação das Dependências
 # ===============================
+# ... início do arquivo ...
+import matplotlib
+matplotlib.use('Agg')  # <- Adicione esta linha logo após os imports do matplotlib
+import matplotlib.pyplot as plt
+# ... resto dos imports ...
 
+# ... seu código ...
+
+# Exemplo de alteração para salvar gráficos:
+plt.figure(1, figsize=(12,6))
+plt.title("Matriz de Confusão - Modelo com 5 Aulas")
+plt.savefig('/opt/spark/scripts/grafico1_matriz_confusao.png')
+plt.close()
+
+plt.figure(2, figsize=(10, 5))
+# ... plot ...
+plt.savefig('/opt/spark/scripts/grafico2_distribuicao_real_vs_predito.png')
+plt.close()
+
+# Repita para todos os gráficos:
+# plt.savefig('/opt/spark/scripts/graficoX_nome.png')
+# plt.close()
+
+# Exemplo para o trecho que você enviou:
+plt.figure(8, figsize=(7,5))
+colors = ['red', 'orange', 'green']
+bars = plt.bar(df_contagem['classe_economica'], df_contagem['quantidade_evadidos'], color=colors)
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, height + 0.5, str(int(height)), ha='center')
+plt.title('Quantidade de Alunos Evadidos por Classe Econômica')
+plt.xlabel('Classe Econômica')
+plt.ylabel('Quantidade')
+plt.grid(axis='y', linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.savefig('/opt/spark/scripts/grafico8_evadidos_classe_economica.png')
+plt.close()
+
+# ... repita para os demais gráficos ...
+
+# No final do script, NÃO use plt.show() (ou deixe, mas não fará efeito em ambiente headless)
 # 🔢 Manipulação de Dados
 import pandas as pd
 import numpy as np
@@ -930,3 +970,124 @@ plt.tight_layout()
 
 plt.show()
 #FIM DE CODIGO 
+# ... início do arquivo ...
+import matplotlib
+matplotlib.use('Agg')  # <- Adicione esta linha logo após os imports do matplotlib
+import matplotlib.pyplot as plt
+# ... resto dos imports ...
+
+# ... seu código ...
+
+# Exemplo de alteração para salvar gráficos:
+plt.figure(1, figsize=(12,6))
+plt.title("Matriz de Confusão - Modelo com 5 Aulas")
+plt.savefig('/opt/spark/scripts/grafico1_matriz_confusao.png')
+plt.close()
+
+plt.figure(2, figsize=(10, 5))
+# ... plot ...
+plt.savefig('/opt/spark/scripts/grafico2_distribuicao_real_vs_predito.png')
+plt.close()
+
+# Repita para todos os gráficos:
+# plt.savefig('/opt/spark/scripts/graficoX_nome.png')
+# plt.close()
+
+# Exemplo para o trecho que você enviou:
+plt.figure(8, figsize=(7,5))
+colors = ['red', 'orange', 'green']
+bars = plt.bar(df_contagem['classe_economica'], df_contagem['quantidade_evadidos'], color=colors)
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, height + 0.5, str(int(height)), ha='center')
+plt.title('Quantidade de Alunos Evadidos por Classe Econômica')
+plt.xlabel('Classe Econômica')
+plt.ylabel('Quantidade')
+plt.grid(axis='y', linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.savefig('/opt/spark/scripts/grafico8_evadidos_classe_economica.png')
+plt.close()
+
+# ... repita para os demais gráficos ...
+
+# No final do script, NÃO use plt.show() (ou deixe, mas não fará efeito em ambiente headless)# ... início do arquivo ...
+import matplotlib
+matplotlib.use('Agg')  # <- Adicione esta linha logo após os imports do matplotlib
+import matplotlib.pyplot as plt
+# ... resto dos imports ...
+
+# ... seu código ...
+
+# Exemplo de alteração para salvar gráficos:
+plt.figure(1, figsize=(12,6))
+plt.title("Matriz de Confusão - Modelo com 5 Aulas")
+plt.savefig('/opt/spark/scripts/grafico1_matriz_confusao.png')
+plt.close()
+
+plt.figure(2, figsize=(10, 5))
+# ... plot ...
+plt.savefig('/opt/spark/scripts/grafico2_distribuicao_real_vs_predito.png')
+plt.close()
+
+# Repita para todos os gráficos:
+# plt.savefig('/opt/spark/scripts/graficoX_nome.png')
+# plt.close()
+
+# Exemplo para o trecho que você enviou:
+plt.figure(8, figsize=(7,5))
+colors = ['red', 'orange', 'green']
+bars = plt.bar(df_contagem['classe_economica'], df_contagem['quantidade_evadidos'], color=colors)
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, height + 0.5, str(int(height)), ha='center')
+plt.title('Quantidade de Alunos Evadidos por Classe Econômica')
+plt.xlabel('Classe Econômica')
+plt.ylabel('Quantidade')
+plt.grid(axis='y', linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.savefig('/opt/spark/scripts/grafico8_evadidos_classe_economica.png')
+plt.close()
+
+# ... repita para os demais gráficos ...
+
+# No final do script, NÃO use plt.show() (ou deixe, mas não fará efeito em ambiente headless)# ... início do arquivo ...
+import matplotlib
+matplotlib.use('Agg')  # <- Adicione esta linha logo após os imports do matplotlib
+import matplotlib.pyplot as plt
+# ... resto dos imports ...
+
+# ... seu código ...
+
+# Exemplo de alteração para salvar gráficos:
+plt.figure(1, figsize=(12,6))
+plt.title("Matriz de Confusão - Modelo com 5 Aulas")
+plt.savefig('/opt/spark/scripts/grafico1_matriz_confusao.png')
+plt.close()
+
+plt.figure(2, figsize=(10, 5))
+# ... plot ...
+plt.savefig('/opt/spark/scripts/grafico2_distribuicao_real_vs_predito.png')
+plt.close()
+
+# Repita para todos os gráficos:
+# plt.savefig('/opt/spark/scripts/graficoX_nome.png')
+# plt.close()
+
+# Exemplo para o trecho que você enviou:
+plt.figure(8, figsize=(7,5))
+colors = ['red', 'orange', 'green']
+bars = plt.bar(df_contagem['classe_economica'], df_contagem['quantidade_evadidos'], color=colors)
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, height + 0.5, str(int(height)), ha='center')
+plt.title('Quantidade de Alunos Evadidos por Classe Econômica')
+plt.xlabel('Classe Econômica')
+plt.ylabel('Quantidade')
+plt.grid(axis='y', linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.savefig('/opt/spark/scripts/grafico8_evadidos_classe_economica.png')
+plt.close()
+
+# ... repita para os demais gráficos ...
+
+# No final do script, NÃO use plt.show() (ou deixe, mas não fará efeito em ambiente headless)
