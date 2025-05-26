@@ -3,7 +3,7 @@ FROM bitnami/spark:latest
 USER root
 
 # Instalar dependências do sistema
-RUN apt-get update && apt-get install -y python3-pip python3-dev libmysqlclient-dev \
+RUN apt-get update && apt-get install -y python3-pip python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar bibliotecas Python necessárias
