@@ -29,29 +29,15 @@ pipeline {
         stage('Subir Serviços') {
             steps {
                 script {
-                    echo "Listando containers existentes..."
-                    sh 'docker ps -a'
-
-                    echo "Removendo containers antigos do MySQL manualmente, se existirem..."
+                    echo "Removendo containers conflitantes..."
                     sh '''
-                    CONTAINERS=$(docker ps -a --format '{{.Names}}' | grep "mysql_db" || true)
-                    if [ ! -z "$CONTAINERS" ]; then
-                        echo "Removendo containers: $CONTAINERS"
-                        for C in $CONTAINERS; do
-                            docker rm -f "$C" || true
-                        done
-                        for i in {1..5}; do
-                            EXISTS=$(docker ps -a --format '{{.Names}}' | grep "mysql_db" || true)
-                            if [ -z "$EXISTS" ]; then
-                                echo "Todos containers mysql_db removidos."
-                                break
-                            fi
-                            echo "Aguardando remoção dos containers mysql_db..."
-                            sleep 2
-                        done
-                    else
-                        echo "Nenhum container mysql_db encontrado."
-                    fi
+                    CONTAINERS_TO_REMOVE="mysql_db spark-master spark-worker backend flaskapi frontend grafana prometheus loki"
+                    for c in $CONTAINERS_TO_REMOVE; do
+                        if docker ps -a --format '{{.Names}}' | grep -w "$c" > /dev/null; then
+                            echo "Removendo container $c"
+                            docker rm -f $c || true
+                        fi
+                    done
                     '''
 
                     echo "Removendo containers do docker-compose..."
@@ -140,8 +126,15 @@ pipeline {
 
     post {
         always {
+            echo "Parando e removendo todos os containers antes da limpeza..."
+            sh '''
+            docker ps -q | xargs -r docker stop || true
+            docker ps -a -q | xargs -r docker rm -f || true
+            '''
+
             echo "Limpando Docker..."
             sh 'docker system prune -f || true'
+
             sh '''
             IMAGENS=$(docker images -f "dangling=true" -q)
             if [ -n "$IMAGENS" ]; then
