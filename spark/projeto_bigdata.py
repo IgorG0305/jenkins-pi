@@ -1,51 +1,10 @@
 # ===============================
 # 📦 Importação das Dependências
 # ===============================
-# ... início do arquivo ...
-import matplotlib
-matplotlib.use('Agg')  # <- Adicione esta linha logo após os imports do matplotlib
-import matplotlib.pyplot as plt
-# ... resto dos imports ...
 
-# ... seu código ...
-
-# Exemplo de alteração para salvar gráficos:
-plt.figure(1, figsize=(12,6))
-plt.title("Matriz de Confusão - Modelo com 5 Aulas")
-plt.savefig('/opt/spark/scripts/grafico1_matriz_confusao.png')
-plt.close()
-
-plt.figure(2, figsize=(10, 5))
-# ... plot ...
-plt.savefig('/opt/spark/scripts/grafico2_distribuicao_real_vs_predito.png')
-plt.close()
-
-# Repita para todos os gráficos:
-# plt.savefig('/opt/spark/scripts/graficoX_nome.png')
-# plt.close()
-
-# Exemplo para o trecho que você enviou:
-plt.figure(8, figsize=(7,5))
-colors = ['red', 'orange', 'green']
-bars = plt.bar(df_contagem['classe_economica'], df_contagem['quantidade_evadidos'], color=colors)
-for bar in bars:
-    height = bar.get_height()
-    plt.text(bar.get_x() + bar.get_width()/2, height + 0.5, str(int(height)), ha='center')
-plt.title('Quantidade de Alunos Evadidos por Classe Econômica')
-plt.xlabel('Classe Econômica')
-plt.ylabel('Quantidade')
-plt.grid(axis='y', linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.savefig('/opt/spark/scripts/grafico8_evadidos_classe_economica.png')
-plt.close()
-
-# ... repita para os demais gráficos ...
-
-# No final do script, NÃO use plt.show() (ou deixe, mas não fará efeito em ambiente headless)
 # 🔢 Manipulação de Dados
 import pandas as pd
 import numpy as np
-import time
 
 # 📊 Visualização de Dados
 import matplotlib.pyplot as plt
@@ -100,14 +59,6 @@ from pyspark.sql.functions import col
 from pyspark.ml.feature import StringIndexer, VectorAssembler
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from sklearn.metrics import confusion_matrix
-
-# 📥 Carregar Base de Dados
-#df = pd.read_csv(r"C:/Users/bruno/Downloads/PI_DATA_SCIENCE/Analise_BIGDATA_docker/ANALISE_PI/alunos_com_erros.csv")
-
-# 📊 Exploração Inicial
-#print(df.head())
-#print(df.info())
-#print(df.isnull().sum())
 
 # ================================
 # 📊 Visualização Inicial com mysql
@@ -409,22 +360,6 @@ data = predictions.select("risco_evasao_idx", "prediction").collect()
 # Converte para pandas
 preds_pd = pd.DataFrame(data, columns=["risco_evasao_idx", "prediction"])
 
-# ===============================
-# 📄 Informações adicionais
-# ===============================
-# print("\nInformações do DataFrame Spark:")
-# print("Colunas disponíveis:", df_spark.columns)
-# print("Contagem de linhas:", df_spark.count())
-
-# print("Contagem de valores nulos por coluna:")
-# df_spark.select([col(c).isNull().cast("int").alias(c) for c in df_spark.columns]) \
-#     .agg(*[sum(col(c)).alias(c) for c in df_spark.columns]).show()
-
-# print("Distribuição de classes (risco_evasao):")
-# df_spark.groupBy("risco_evasao").count().show()
-
-# print("Distribuição de classes (risco_evasao_idx):")
-# df_spark.groupBy("risco_evasao_idx").count().show()
 # ===============================
 # 📈 Visualizações com Pandas, Seaborn e Matplotlib
 # ===============================
@@ -766,6 +701,89 @@ fig.update_layout(
 
 fig.show()
 
+# ===============================
+# 📚 PLN - Processamento de Linguagem Natural
+# ===============================
+
+# 🇧🇷 Stopwords em português
+stop_words = stopwords.words('portuguese')
+
+# 🔤 1. Unificar textos das aulas e professores
+df['texto_pln'] = (
+    df[['aula_1', 'aula_2', 'aula_3', 'aula_4', 'aula_5',
+        'professor_1', 'professor_2', 'professor_3', 'professor_4', 'professor_5']]
+    .fillna('')
+    .agg(' '.join, axis=1)
+)
+
+# 🧹 2. Remover nulos
+df_pln = df[['texto_pln', 'risco_evasao']].dropna()
+
+X_texto = df_pln['texto_pln']
+y_risco = df_pln['risco_evasao']
+
+# 🎯 3. Separar treino/teste
+X_train_txt, X_test_txt, y_train_txt, y_test_txt = train_test_split(
+    X_texto, y_risco, test_size=0.2, random_state=42, stratify=y_risco
+)
+
+# 🤖 4. Pipeline com TF-IDF + Naive Bayes
+pipeline_pln = Pipeline([
+    ('tfidf', TfidfVectorizer(stop_words=stop_words)),
+    ('clf', MultinomialNB())
+])
+
+# 🚀 5. Treinar o modelo
+pipeline_pln.fit(X_train_txt, y_train_txt)
+
+# 🔍 6. Avaliar o modelo
+y_pred_txt = pipeline_pln.predict(X_test_txt)
+
+print("📋 Relatório de Classificação (PLN - Aulas e Professores):")
+print(classification_report(y_test_txt, y_pred_txt))
+
+# ===============================
+# 📊 Visualizações Avançadas
+# ===============================
+
+# 💬 Top Palavras por Classe
+vectorizer = pipeline_pln.named_steps['tfidf']
+clf_nb = pipeline_pln.named_steps['clf']
+
+feature_names = vectorizer.get_feature_names_out()
+class_labels = clf_nb.classes_
+
+for i, label in enumerate(class_labels):
+    top10_idx = np.argsort(clf_nb.feature_log_prob_[i])[-10:]
+    top10_words = feature_names[top10_idx]
+    top10_weights = clf_nb.feature_log_prob_[i][top10_idx]
+
+    df_top_words = pd.DataFrame({
+        'Palavra': top10_words,
+        'Peso': top10_weights
+    }).sort_values(by='Peso', ascending=False)  # Alterado para False
+
+    fig = px.bar(
+        df_top_words,
+        x='Peso',
+        y='Palavra',
+        orientation='h',
+        color='Peso',
+        title=f'💬 Top 10 Palavras Indicativas para Risco de Evasão = {label}',
+        color_continuous_scale='Viridis',
+        labels={'Peso': 'Peso (TF-IDF x Naive Bayes)'},
+        height=400,
+        width=700
+    )
+    fig.update_layout(
+        xaxis_title='Peso TF-IDF',
+        yaxis_title='Palavra',
+        showlegend=False,
+        margin=dict(l=50, r=30, t=50, b=50)
+    )
+    fig.show()
+
+# ===============================
 
 #Graficos Estáticos
 
@@ -801,8 +819,17 @@ plt.figure(4, figsize=(6, 6))
 plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=['#4CAF50', '#F44336'])
 plt.title('Acurácia do Modelo de Evasão')
 
-# Gráfico 5: Top 5 cursos com mais risco de evasão
-plt.figure(5, figsize=(8,5))
+# Gráfico 5: Distribuição de Risco de Evasão (Dados via HDFS)
+plt.figure(5, figsize=(8, 5))
+sns.countplot(data=df_pandas, x='risco_evasao', palette='viridis')
+plt.title('Distribuição de Risco de Evasão (Dados via HDFS)')
+plt.xlabel('Risco de Evasão')
+plt.ylabel('Quantidade')
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Gráfico 6: Top 5 cursos com mais risco de evasão
+plt.figure(6, figsize=(8,5))
 bars = plt.bar(df_risco_counts['risco_predito'], df_risco_counts['percentual'], color='skyblue')
 
 for bar in bars:
@@ -815,10 +842,10 @@ plt.ylabel('Percentual (%)')
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.tight_layout()
 
-# Gráfico 6: Top 10 Variáveis para Predição do Risco de Evasão
+# Gráfico 7: Top 10 Variáveis para Predição do Risco de Evasão
 top_imp = df_imp.head(10)
 
-plt.figure(6, figsize=(8,6))
+plt.figure(7, figsize=(8,6))
 plt.barh(top_imp['Variável'], top_imp['Importância'], color='mediumseagreen')
 plt.xlabel('Importância')
 plt.title('Top 10 Variáveis para Predição do Risco de Evasão')
@@ -826,17 +853,16 @@ plt.gca().invert_yaxis()
 plt.grid(axis='x', linestyle='--', alpha=0.7)
 plt.tight_layout()
 
-# Gráfico 7: Alunos por Risco de Evasão (PCA + RandomForest)
-import seaborn as sns
+# Gráfico 8: Alunos por Risco de Evasão (PCA + RandomForest)
 
-plt.figure(7, figsize=(8,6))
+plt.figure(8, figsize=(8,6))
 sns.scatterplot(data=df_pca, x='PC1', y='PC2', hue='Risco_Predito', palette='Set2', s=100, edgecolor='black')
 plt.title('Alunos por Risco de Evasão (PCA + RandomForest)')
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
 
-# Gráfico 8: Quantidade de Alunos Evadidos por Classe Econômica
-plt.figure(8, figsize=(7,5))
+# Gráfico 9: Quantidade de Alunos Evadidos por Classe Econômica
+plt.figure(9, figsize=(7,5))
 colors = ['red', 'orange', 'green']
 bars = plt.bar(df_contagem['classe_economica'], df_contagem['quantidade_evadidos'], color=colors)
 
@@ -850,14 +876,35 @@ plt.ylabel('Quantidade')
 plt.grid(axis='y', linestyle='--', alpha=0.5)
 plt.tight_layout()
 
-# Gráfico 9: Top 5 Estados Civis com Mais Evasão
+# Gráfico 10: Matriz de Confusão
+conf_mat = confusion_matrix(y_test_txt, y_pred_txt)
+plt.figure(10, figsize=(7, 5))
+sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Blues', cbar=False, linewidths=1, linecolor='gray')
+plt.title('🔷 Matriz de Confusão - PLN (Textos de Aulas e Professores)', fontsize=14)
+plt.xlabel('Classe Predita', fontsize=12)
+plt.ylabel('Classe Real', fontsize=12)
+plt.tight_layout()
+plt.grid(False)
+
+# Gráfico 11: Distribuição Real vs Predito
+plt.figure(11, figsize=(8, 5))
+sns.countplot(x=y_test_txt, label='Real', alpha=0.6, color='royalblue')
+sns.countplot(x=y_pred_txt, label='Predito', alpha=0.5, color='tomato')
+plt.legend(title='Legenda')
+plt.title('📊 Distribuição das Classes: Real vs Predita (PLN)', fontsize=14)
+plt.xlabel('Risco de Evasão', fontsize=12)
+plt.ylabel('Número de Alunos', fontsize=12)
+plt.grid(axis='y', linestyle='--', alpha=0.5)
+plt.tight_layout()  
+
+# Gráfico 12: Top 5 Estados Civis com Mais Evasão
 # Garantir que não há nulos
 df_estado = df.dropna(subset=['estado_civil', 'risco_evasao'])
 
 # Contar evasões por estado civil
 evasao_estado = df_estado[df_estado['risco_evasao'] == 1]['estado_civil'].value_counts().nlargest(6)
 
-plt.figure(9, figsize=(8,5))
+plt.figure(12, figsize=(8,5))
 bars = plt.bar(evasao_estado.index, evasao_estado.values, color='cornflowerblue', edgecolor='black')
 
 # Adicionar rótulos nas barras
@@ -872,14 +919,14 @@ plt.xticks(rotation=45)
 plt.grid(axis='y', linestyle='--', alpha=0.5)
 plt.tight_layout()
 
-# Gráfico 10: Evasão por Bimestre
+# Gráfico 13: Evasão por Bimestre
 # Garantir dados válidos
 df_bimestre = df.dropna(subset=['bimestre', 'risco_evasao'])
 
 # Contar evasões por bimestre
 evasao_bimestre = df_bimestre[df_bimestre['risco_evasao'] == 1]['bimestre'].value_counts().sort_index()
 
-plt.figure(10, figsize=(8,5))
+plt.figure(13, figsize=(8,5))
 bars = plt.bar(evasao_bimestre.index.astype(str), evasao_bimestre.values, color='tomato', edgecolor='black')
 
 # Rótulos nas barras
@@ -893,14 +940,14 @@ plt.ylabel('Quantidade de Evasões')
 plt.grid(axis='y', linestyle='--', alpha=0.5)
 plt.tight_layout()
 
-# Gráfico 11: Evasão por Semestre
+# Gráfico 14: Evasão por Semestre
 # Garantir dados válidos
 df_semestre = df.dropna(subset=['semestre', 'risco_evasao'])
 
 # Contar evasões por semestre
 evasao_semestre = df_semestre[df_semestre['risco_evasao'] == 1]['semestre'].value_counts().sort_index()
 
-plt.figure(11, figsize=(9,5))
+plt.figure(14, figsize=(9,5))
 bars = plt.bar(evasao_semestre.index.astype(str), evasao_semestre.values, color='darkorange', edgecolor='black')
 
 # Adicionar rótulos nas barras
@@ -915,8 +962,8 @@ plt.grid(axis='y', linestyle='--', alpha=0.5)
 plt.xticks(rotation=45)
 plt.tight_layout()
 
-# Gráfico 12: Quantidade de Alunos Evadidos por Número de Faltas
-plt.figure(12, figsize=(8,5))   
+# Gráfico 15: Quantidade de Alunos Evadidos por Número de Faltas
+plt.figure(15, figsize=(8,5))   
 plt.bar(df_faltas_count['faltas_1'], df_faltas_count['quantidade_evadidos'], color='purple')
 plt.title('Quantidade de Alunos Evadidos por Número de Faltas')
 plt.xlabel('Número de Faltas')
@@ -925,8 +972,8 @@ plt.xticks(rotation=45)
 plt.grid(axis='y', linestyle='--', alpha=0.5)
 plt.tight_layout()
 
-# Gráfico 13: Distribuição de Evasão por Semestre
-plt.figure(13, figsize=(10,6))
+# Gráfico 16: Distribuição de Evasão por Semestre
+plt.figure(16, figsize=(10,6))
 plt.bar(dados_plot['semestre'], dados_plot['total_evasoes'], color='blue', label='Total de Evasões')
 plt.bar(dados_plot['semestre'], dados_plot['percentual_evasao'], color='orange', label='Percentual de Evasão (%)')
 plt.title('Distribuição de Evasão por Semestre')
@@ -941,7 +988,7 @@ if 'df_motivos' not in locals():
     df_model['motivo_evasao'] = df_model.apply(definir_motivo, axis=1)
     df_motivos = df_model.groupby(['risco_predito', 'motivo_evasao']).size().reset_index(name='quantidade')
 
-# Gráfico 14: Top 5 cursos com mais evasão
+# Gráfico 17: Top 5 cursos com mais evasão
 # Garantir que a coluna 'risco_evasao' e 'curso' estão presentes e válidas
 df_evasao_curso = df.copy()
 df_evasao_curso = df_evasao_curso.dropna(subset=['risco_evasao', 'curso'])
@@ -953,7 +1000,7 @@ df_evadidos = df_evasao_curso[df_evasao_curso['risco_evasao'] == 1]
 top_cursos = df_evadidos['curso'].value_counts().nlargest(5)
 
 # Plotar o gráfico
-plt.figure(14, figsize=(8, 5))
+plt.figure(17, figsize=(8, 5))
 bars = plt.bar(top_cursos.index, top_cursos.values, color='steelblue', edgecolor='black')
 
 # Adicionar rótulos de valor nas barras
@@ -970,124 +1017,3 @@ plt.tight_layout()
 
 plt.show()
 #FIM DE CODIGO 
-# ... início do arquivo ...
-import matplotlib
-matplotlib.use('Agg')  # <- Adicione esta linha logo após os imports do matplotlib
-import matplotlib.pyplot as plt
-# ... resto dos imports ...
-
-# ... seu código ...
-
-# Exemplo de alteração para salvar gráficos:
-plt.figure(1, figsize=(12,6))
-plt.title("Matriz de Confusão - Modelo com 5 Aulas")
-plt.savefig('/opt/spark/scripts/grafico1_matriz_confusao.png')
-plt.close()
-
-plt.figure(2, figsize=(10, 5))
-# ... plot ...
-plt.savefig('/opt/spark/scripts/grafico2_distribuicao_real_vs_predito.png')
-plt.close()
-
-# Repita para todos os gráficos:
-# plt.savefig('/opt/spark/scripts/graficoX_nome.png')
-# plt.close()
-
-# Exemplo para o trecho que você enviou:
-plt.figure(8, figsize=(7,5))
-colors = ['red', 'orange', 'green']
-bars = plt.bar(df_contagem['classe_economica'], df_contagem['quantidade_evadidos'], color=colors)
-for bar in bars:
-    height = bar.get_height()
-    plt.text(bar.get_x() + bar.get_width()/2, height + 0.5, str(int(height)), ha='center')
-plt.title('Quantidade de Alunos Evadidos por Classe Econômica')
-plt.xlabel('Classe Econômica')
-plt.ylabel('Quantidade')
-plt.grid(axis='y', linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.savefig('/opt/spark/scripts/grafico8_evadidos_classe_economica.png')
-plt.close()
-
-# ... repita para os demais gráficos ...
-
-# No final do script, NÃO use plt.show() (ou deixe, mas não fará efeito em ambiente headless)# ... início do arquivo ...
-import matplotlib
-matplotlib.use('Agg')  # <- Adicione esta linha logo após os imports do matplotlib
-import matplotlib.pyplot as plt
-# ... resto dos imports ...
-
-# ... seu código ...
-
-# Exemplo de alteração para salvar gráficos:
-plt.figure(1, figsize=(12,6))
-plt.title("Matriz de Confusão - Modelo com 5 Aulas")
-plt.savefig('/opt/spark/scripts/grafico1_matriz_confusao.png')
-plt.close()
-
-plt.figure(2, figsize=(10, 5))
-# ... plot ...
-plt.savefig('/opt/spark/scripts/grafico2_distribuicao_real_vs_predito.png')
-plt.close()
-
-# Repita para todos os gráficos:
-# plt.savefig('/opt/spark/scripts/graficoX_nome.png')
-# plt.close()
-
-# Exemplo para o trecho que você enviou:
-plt.figure(8, figsize=(7,5))
-colors = ['red', 'orange', 'green']
-bars = plt.bar(df_contagem['classe_economica'], df_contagem['quantidade_evadidos'], color=colors)
-for bar in bars:
-    height = bar.get_height()
-    plt.text(bar.get_x() + bar.get_width()/2, height + 0.5, str(int(height)), ha='center')
-plt.title('Quantidade de Alunos Evadidos por Classe Econômica')
-plt.xlabel('Classe Econômica')
-plt.ylabel('Quantidade')
-plt.grid(axis='y', linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.savefig('/opt/spark/scripts/grafico8_evadidos_classe_economica.png')
-plt.close()
-
-# ... repita para os demais gráficos ...
-
-# No final do script, NÃO use plt.show() (ou deixe, mas não fará efeito em ambiente headless)# ... início do arquivo ...
-import matplotlib
-matplotlib.use('Agg')  # <- Adicione esta linha logo após os imports do matplotlib
-import matplotlib.pyplot as plt
-# ... resto dos imports ...
-
-# ... seu código ...
-
-# Exemplo de alteração para salvar gráficos:
-plt.figure(1, figsize=(12,6))
-plt.title("Matriz de Confusão - Modelo com 5 Aulas")
-plt.savefig('/opt/spark/scripts/grafico1_matriz_confusao.png')
-plt.close()
-
-plt.figure(2, figsize=(10, 5))
-# ... plot ...
-plt.savefig('/opt/spark/scripts/grafico2_distribuicao_real_vs_predito.png')
-plt.close()
-
-# Repita para todos os gráficos:
-# plt.savefig('/opt/spark/scripts/graficoX_nome.png')
-# plt.close()
-
-# Exemplo para o trecho que você enviou:
-plt.figure(8, figsize=(7,5))
-colors = ['red', 'orange', 'green']
-bars = plt.bar(df_contagem['classe_economica'], df_contagem['quantidade_evadidos'], color=colors)
-for bar in bars:
-    height = bar.get_height()
-    plt.text(bar.get_x() + bar.get_width()/2, height + 0.5, str(int(height)), ha='center')
-plt.title('Quantidade de Alunos Evadidos por Classe Econômica')
-plt.xlabel('Classe Econômica')
-plt.ylabel('Quantidade')
-plt.grid(axis='y', linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.savefig('/opt/spark/scripts/grafico8_evadidos_classe_economica.png')
-plt.close()
-
-# ... repita para os demais gráficos ...
-
-# No final do script, NÃO use plt.show() (ou deixe, mas não fará efeito em ambiente headless)
