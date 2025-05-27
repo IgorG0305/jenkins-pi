@@ -349,7 +349,7 @@ spark = SparkSession.builder \
 # 📥 Leitura dos dados via JDBC
 # ===============================
 df_spark = spark.read.format("jdbc").options(
-    url="jdbc:mysql://localhost:3306/faculdades1",
+    url="jdbc:mysql://db:3306/faculdades1", # <--- CORRETO!
     driver="com.mysql.cj.jdbc.Driver",
     dbtable="alunos_tratados",
     user="dbpi",
