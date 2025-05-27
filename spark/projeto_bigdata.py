@@ -1,5 +1,7 @@
-import matplotlib
-matplotlib.use('Agg')
+# ===============================
+# 📦 Importação das Dependências
+# ===============================
+
 # 🔢 Manipulação de Dados
 import pandas as pd
 import numpy as np
@@ -1015,8 +1017,3 @@ plt.tight_layout()
 
 plt.show()
 #FIM DE CODIGO 
-
-plt.figure(1)
-# ... plot ...
-plt.savefig('/opt/spark/scripts/grafico1.png')
-plt.close()

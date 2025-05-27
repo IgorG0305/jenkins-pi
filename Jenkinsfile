@@ -76,8 +76,8 @@
                     '''
                 
                 // *** ESTE É O LUGAR CORRETO E ÚNICO PARA O SLEEP EXTRA ***
-                    echo "MySQL respondeu ao ping. Aguardando 10 segundos extras por segurança..."
-                    sh 'sleep 10'
+                    echo "MySQL respondeu ao ping. Aguardando 30 segundos extras por segurança..."
+                    sh 'sleep 30'
             }
         }
     }
