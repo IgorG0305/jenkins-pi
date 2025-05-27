@@ -100,6 +100,8 @@
                     }
                 }
             }
+            while ! nc -z spark-master 7077; do sleep 1; done
+
 
             stage('Submit Spark Job') {
                 steps {

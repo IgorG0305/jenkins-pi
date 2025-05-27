@@ -81,19 +81,16 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
 
+
   spark-master:
-    build:
-      context: ./spark
+    image: bitnami/spark:latest
     container_name: spark-master
     environment:
-      - PYSPARK_PYTHON=python3
-      - SPARK_MODE=master  # <--- ADICIONE ESTA LINHA!
-    depends_on:
-      - db
-    networks:
-      - default
-    volumes:
-    - ./graficos:/opt/spark/scripts
+      - SPARK_MODE=master
+    ports:
+      - "8081:8080"
+
+
 
 
   spark-worker:
