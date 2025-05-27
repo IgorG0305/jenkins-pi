@@ -87,6 +87,7 @@ services:
     container_name: spark-master
     environment:
       - PYSPARK_PYTHON=python3
+      - SPARK_MODE=master  # <--- ADICIONE ESTA LINHA!
     depends_on:
       - db
     networks:

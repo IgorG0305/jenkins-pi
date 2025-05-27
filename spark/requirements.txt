@@ -1,5 +1,7 @@
 pandas
 numpy
+scipy
+dask[dataframe]
 matplotlib
 seaborn
 plotly

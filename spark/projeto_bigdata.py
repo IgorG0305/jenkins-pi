@@ -113,18 +113,18 @@ from sklearn.metrics import confusion_matrix
 # 📊 Visualização Inicial com mysql
 
 # Configuração da conexão
-usuario = 'root'
-senha = ''
-host = 'mysql_db'
+usuario = 'dbpi'
+senha = 'walker1207'
+host = 'db'
 porta = 3306
-nome_banco = 'faculdade'
+nome_banco = 'faculdades1'
 
 # String de conexão
 engine = create_engine(f'mysql+pymysql://{usuario}:{senha}@{host}:{porta}/{nome_banco}')
 
 
 # Consulta os dados da tabela alunos
-query = "SELECT * FROM alunos"
+query = "SELECT * FROM alunos_tratados"
 
 df = pd.read_sql(query, con=engine)
 
@@ -196,7 +196,7 @@ from sqlalchemy import create_engine
 
 # Conectar ao banco e carregar dados no pandas
 engine = create_engine("mysql+pymysql://root:@localhost:3306/faculdade")
-df_model = pd.read_sql("SELECT * FROM alunos", con=engine)
+df_model = pd.read_sql("SELECT * FROM alunos_tratados", con=engine)
 
 if 'desempenho_1' in df_model.columns:
     X_reg = df_model.drop(columns=['desempenho_1'], errors='ignore')
@@ -349,11 +349,11 @@ spark = SparkSession.builder \
 # 📥 Leitura dos dados via JDBC
 # ===============================
 df_spark = spark.read.format("jdbc").options(
-    url="jdbc:mysql://localhost:3306/faculdade",
+    url="jdbc:mysql://localhost:3306/faculdades1",
     driver="com.mysql.cj.jdbc.Driver",
-    dbtable="alunos",
-    user="root",
-    password=""
+    dbtable="alunos_tratados",
+    user="dbpi",
+    password="walker1207"
 ).load()
 
 df_spark.printSchema()
