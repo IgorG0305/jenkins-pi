@@ -2,7 +2,7 @@ services:
   frontend:
     image: superlike1/frontend-app:latest
     ports:
-      - "3001:3000"
+      - "3003:3000"
     depends_on:
       - backend
 
@@ -23,7 +23,7 @@ services:
   flaskapi:
     image: superlike1/flask-app:latest
     ports:
-      - "5051:5050"
+      - "5052:5051"
     depends_on:
       db:
         condition: service_healthy
@@ -54,20 +54,21 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+    - "3002:3000"  # Mudei aqui de 3000:3000 para 3002:3000
     depends_on:
-      - db
-      - loki
+    - db
+    - loki
     volumes:
-      - grafana_data:/var/lib/grafana
+    - grafana_data:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+    - GF_SECURITY_ADMIN_USER=admin
+    - GF_SECURITY_ADMIN_PASSWORD=admin
+
 
   loki:
     image: grafana/loki:2.8.2
     ports:
-      - "9091:9091"
+      - "9051:9091"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - loki_data:/var/lib/loki
@@ -75,7 +76,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9010:9010"
+      - "9030:9030"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command:
@@ -88,8 +89,8 @@ services:
     environment:
       - SPARK_MODE=master
     ports:
-      - "8081:8080"
-
+      - "7077:7077"
+      - "9080:9080"
 
 
 
