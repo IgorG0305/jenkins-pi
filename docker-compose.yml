@@ -92,6 +92,8 @@ services:
       - db
     networks:
       - default
+    volumes:
+    - ./graficos:/opt/spark/scripts
 
 
   spark-worker:
