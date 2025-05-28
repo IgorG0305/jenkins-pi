@@ -102,7 +102,7 @@ services:
       - app_net
 
   spark-master:
-    image: bitnami/spark:latest
+    image: apache/spark:latest
     container_name: spark-master
     environment:
       - SPARK_MODE=master
