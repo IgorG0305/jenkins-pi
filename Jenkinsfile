@@ -59,6 +59,15 @@ pipeline {
                     done
                     '''
 
+                    echo "Aguardando spark-master estar ativo na porta 7077..."
+                    sh '''
+                    for i in {1..30}; do
+                        nc -z spark-master 7077 && echo "Spark Master está pronto!" && break
+                        echo "Aguardando spark-master ($i/30)..."
+                        sleep 1
+                    done
+                    '''
+
                     echo "MySQL respondeu ao ping. Aguardando 30 segundos extras por segurança..."
                     sh 'sleep 30'
                 }
@@ -80,19 +89,6 @@ pipeline {
                             sh 'sleep 180'
                         }
                     }
-                }
-            }
-        }
-
-        stage('Aguardar Spark') {
-            steps {
-                script {
-                    echo "Aguardando spark-master estar ativo na porta 7077..."
-                    sh '''
-                    while ! nc -z spark-master 7077; do
-                      sleep 1
-                    done
-                    '''
                 }
             }
         }
