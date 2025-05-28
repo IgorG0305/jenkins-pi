@@ -74,24 +74,30 @@ pipeline {
             }
         }
 
-        stage('Processo Iterativo') {
-            steps {
-                script {
-                    int totalLotes = 2
-                    for (int i = 1; i <= totalLotes; i++) {
-                        echo "=== Iteração ${i} de ${totalLotes} ==="
-                        echo "Executando gerador (1000 alunos)..."
-                        sh 'docker-compose run --rm gerador'
-                        echo "Executando processamento R..."
-                        sh 'docker-compose run --rm rscript'
-                        if (i < totalLotes) {
-                            echo "Aguardando 3 minutos antes do próximo lote..."
-                            sh 'sleep 180'
-                        }
-                    }
+stage('Processo Iterativo') {
+    steps {
+        script {
+            int totalLotes = 2
+            for (int i = 1; i <= totalLotes; i++) {
+                echo "=== Iteração ${i} de ${totalLotes} ==="
+                echo "Executando gerador (1000 alunos)..."
+                sh 'docker-compose run --rm gerador'
+                
+                echo "Executando processamento R..."
+                sh 'docker-compose run --rm rscript'
+                
+                echo "Executando script Python para gerar gráficos do projeto bigdata..."
+                sh 'docker-compose run --rm backend python3 /opt/spark/scripts/projeto_bigdata.py'
+                
+                if (i < totalLotes) {
+                    echo "Aguardando 3 minutos antes do próximo lote..."
+                    sh 'sleep 180'
                 }
             }
         }
+    }
+}
+
 
         stage('Submit Spark Job') {
             steps {
