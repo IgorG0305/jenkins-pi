@@ -40,11 +40,11 @@ pipeline {
                     done
                     '''
 
-                    echo "Removendo containers do docker-compose..."
-                    sh 'docker-compose down -v || true'
+                    echo "Removendo containers do docker compose..."
+                    sh 'docker compose down -v || true'
 
                     echo "Subindo todos os serviços necessários..."
-                    sh 'docker-compose up -d db flaskapi backend frontend grafana prometheus loki spark-master spark-worker'
+                    sh 'docker compose up -d db flaskapi backend frontend grafana prometheus loki spark-master spark-worker'
 
                     echo "Aguardando banco de dados ficar pronto..."
                     sh '''
@@ -74,29 +74,30 @@ pipeline {
             }
         }
 
-stage('Processo Iterativo') {
-    steps {
-        script {
-            int totalLotes = 1
-            for (int i = 1; i <= totalLotes; i++) {
-                echo "=== Iteração ${i} de ${totalLotes} ==="
-                echo "Executando gerador (1000 alunos)..."
-                sh 'docker-compose run --rm gerador'
+        stage('Processo Iterativo') {
+            steps {
+                script {
+                    int totalLotes = 1
+                    for (int i = 1; i <= totalLotes; i++) {
+                        echo "=== Iteração ${i} de ${totalLotes} ==="
+                        echo "Executando gerador (1000 alunos)..."
+                        sh 'docker compose run --rm gerador'
                 
-                echo "Executando processamento R..."
-                sh 'docker-compose run --rm rscript'
+                        echo "Executando processamento R..."
+                        sh 'docker compose run --rm rscript'
                 
-                echo "Executando script Python para gerar gráficos do projeto bigdata..."
-                sh 'docker-compose run --rm backend python3 /opt/spark/scripts/projeto_bigdata.py'
+                        echo "Executando script Python para gerar gráficos do projeto bigdata..."
+                        sh 'sudo docker compose run --rm backend python3 python3 /opt/bitnami/spark/scripts/projeto_bigdata.py
+'
                 
-                if (i < totalLotes) {
-                    echo "Aguardando 3 minutos antes do próximo lote..."
-                    sh 'sleep 180'
+                        if (i < totalLotes) {
+                            echo "Aguardando 3 minutos antes do próximo lote..."
+                            sh 'sleep 180'
+                        } 
+                    }
                 }
             }
         }
-    }
-}
 
 
         stage('Submit Spark Job') {
@@ -110,7 +111,7 @@ stage('Processo Iterativo') {
                         --master spark://spark-master:7077 \
                         --class org.apache.spark.examples.SparkPi \
                         --conf spark.jars.ivy=/tmp/.ivy2 \
-                        /opt/spark/examples/jars/spark-examples_2.12-*.jar \
+                        /opt/bitnami/spark/examples/jars/spark-examples_2.12-*.jar \
                         10
                     '''
                 }
@@ -122,7 +123,7 @@ stage('Processo Iterativo') {
                 script {
                     echo "Executando projeto_bigdata.py no Spark..."
                     sh '''
-                    docker exec spark-master python3 /opt/spark/scripts/projeto_bigdata.py
+                    docker exec spark-master python3 /opt/bitnami/spark/scripts/projeto_bigdata.py
                     '''
                 }
             }
