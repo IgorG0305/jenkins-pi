@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   frontend:
     image: superlike1/frontend-app:latest
@@ -5,11 +7,15 @@ services:
       - "3003:3000"
     depends_on:
       - backend
+    networks:
+      - app_net
 
   backend:
     image: superlike1/backend-app:latest
     ports:
       - "5000:5000"
+    networks:
+      - app_net
 
   gerador:
     image: superlike1/gerador-app:latest
@@ -19,14 +25,18 @@ services:
       db:
         condition: service_healthy
     command: python gerador.py
+    networks:
+      - app_net
 
   flaskapi:
     image: superlike1/flask-app:latest
     ports:
-      - "5052:5051"
+      - "5051:5050"
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - app_net
 
   db:
     image: mysql:8.0
@@ -43,6 +53,8 @@ services:
     volumes:
       - ./my_custom.cnf:/etc/mysql/conf.d/my_custom.cnf
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app_net
 
   rscript:
     image: superlike1/rscript-app:latest
@@ -50,20 +62,23 @@ services:
       db:
         condition: service_healthy
     command: Rscript limpeza.r
+    networks:
+      - app_net
 
   grafana:
     image: grafana/grafana:latest
     ports:
-    - "3002:3000"  # Mudei aqui de 3000:3000 para 3002:3000
+      - "3002:3000"
     depends_on:
-    - db
-    - loki
+      - db
+      - loki
     volumes:
-    - grafana_data:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
     environment:
-    - GF_SECURITY_ADMIN_USER=admin
-    - GF_SECURITY_ADMIN_PASSWORD=admin
-
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - app_net
 
   loki:
     image: grafana/loki:2.8.2
@@ -72,6 +87,8 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - loki_data:/var/lib/loki
+    networks:
+      - app_net
 
   prometheus:
     image: prom/prometheus:latest
@@ -81,7 +98,8 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-
+    networks:
+      - app_net
 
   spark-master:
     image: bitnami/spark:latest
@@ -91,8 +109,8 @@ services:
     ports:
       - "7077:7077"
       - "9080:9080"
-
-
+    networks:
+      - app_net
 
   spark-worker:
     build:
@@ -107,9 +125,13 @@ services:
     ports:
       - "8081:8081"
     networks:
-      - default
+      - app_net
 
 volumes:
   db_data:
   grafana_data:
   loki_data:
+
+networks:
+  app_net:
+    driver: bridge
