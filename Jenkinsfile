@@ -96,11 +96,14 @@ pipeline {
         stage('Submit Spark Job') {
             steps {
                 script {
-                    echo "Submetendo job Spark..."
+                    echo "Submetendo job Spark com correção para ivy..."
                     sh '''
+                    docker exec spark-master mkdir -p /tmp/.ivy2
+
                     docker exec spark-master spark-submit \
                         --master spark://spark-master:7077 \
                         --class org.apache.spark.examples.SparkPi \
+                        --conf spark.jars.ivy=/tmp/.ivy2 \
                         /opt/spark/examples/jars/spark-examples_2.12-*.jar \
                         10
                     '''
