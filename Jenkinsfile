@@ -77,7 +77,7 @@ pipeline {
 stage('Processo Iterativo') {
     steps {
         script {
-            int totalLotes = 2
+            int totalLotes = 1
             for (int i = 1; i <= totalLotes; i++) {
                 echo "=== Iteração ${i} de ${totalLotes} ==="
                 echo "Executando gerador (1000 alunos)..."
