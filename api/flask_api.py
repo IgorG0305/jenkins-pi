@@ -46,6 +46,19 @@ def listar_alunos():
     except Error as e:
         return jsonify({'erro': str(e)}), 500
 
+@app.route('/alunos_tratados', methods=['GET'])
+def listar_alunostratados():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM alunos_tratados")
+        alunos = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return jsonify(alunos)
+    except Error as e:
+        return jsonify({'erro': str(e)}), 500
+
 @app.route('/alunos', methods=['POST'])
 def adicionar_aluno():
     dados = request.get_json()

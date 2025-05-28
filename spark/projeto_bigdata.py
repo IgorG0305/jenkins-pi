@@ -146,7 +146,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 # Conectar ao banco e carregar dados no pandas
-engine = create_engine("mysql+pymysql://root:@localhost:3306/faculdade")
+engine = create_engine("mysql+pymysql://root:@mysql_db:3306/faculdade")
 df_model = pd.read_sql("SELECT * FROM alunos_tratados", con=engine)
 
 if 'desempenho_1' in df_model.columns:
