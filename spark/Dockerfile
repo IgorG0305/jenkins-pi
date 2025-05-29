@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y \
 # Instalar bibliotecas Python necessárias para o script
 RUN pip3 install \
     pandas numpy matplotlib seaborn scikit-learn \
-    imbalanced-learn plotly sqlalchemy pymysql nltk
+    imbalanced-learn plotly sqlalchemy pymysql nltk cryptography
+
 
 # Baixar stopwords do NLTK (necessário para o script)
 RUN python3 -m nltk.downloader stopwords
@@ -22,15 +23,19 @@ RUN python3 -m nltk.downloader stopwords
 # --- COPIAR O JAR LOCAL (ESSA É A LINHA QUE FALTAVA!) ---
 # Certifique-se de que 'mysql-connector-j-8.2.0.jar' está na pasta './spark'
 COPY mysql-connector-j-8.2.0.jar /opt/bitnami/spark/jars/
+RUN chown 1001:1001 /opt/bitnami/spark/jars/mysql-connector-j-8.2.0.jar
 
 # Criar o diretório para os scripts, se não existir
 RUN mkdir -p /opt/bitnami/spark/scripts && \
+    mkdir -p /opt/bitnami/spark/jars && \
     chown -R 1001:1001 /opt/bitnami/spark/scripts
 
 # Copiar o script Python para dentro do container
 COPY projeto_bigdata.py /opt/bitnami/spark/scripts/projeto_bigdata.py
 
+
 # Dar permissão ao usuário padrão para acessar/executar
+COPY projeto_bigdata.py /opt/bitnami/spark/scripts/projeto_bigdata.py
 RUN chown 1001:1001 /opt/bitnami/spark/scripts/projeto_bigdata.py
 RUN chown 1001:1001 /opt/bitnami/spark/jars/mysql-connector-j-8.2.0.jar
 
