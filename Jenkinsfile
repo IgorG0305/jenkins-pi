@@ -56,29 +56,22 @@ pipeline {
                         sleep 5
                     done
                     '''
-
                     echo "MySQL respondeu ao ping. Aguardando 30 segundos extras por segurança..."
                     sh 'sleep 30'
                 }
             }
         }
 
-        stage('Processo Iterativo') {
+        stage('Processo Infinito de Geração de Alunos') {
             steps {
                 script {
-                    int totalLotes = 1
-                    for (int i = 1; i <= totalLotes; i++) {
-                        echo "=== Iteração ${i} de ${totalLotes} ==="
+                    while (true) {
                         echo "Executando gerador (1000 alunos)..."
                         sh 'docker compose run --rm gerador'
                         echo "Executando processamento R..."
                         sh 'docker compose run --rm rscript'
-                        // REMOVIDO: execução do projeto bigdata no spark-master
-
-                        if (i < totalLotes) {
-                            echo "Aguardando 3 minutos antes do próximo lote..."
-                            sh 'sleep 180'
-                        } 
+                        echo "Esperando 60 segundos antes do próximo lote..."
+                        sh 'sleep 60'
                     }
                 }
             }
