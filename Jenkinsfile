@@ -97,37 +97,6 @@ pipeline {
             }
         }
 
-
-        stage('Submit Spark Job') {
-            steps {
-                script {
-                    echo "Submetendo job Spark com correção para ivy..."
-                    sh '''
-                    docker exec spark-master mkdir -p /tmp/.ivy2
-
-                    docker exec spark-master spark-submit \
-                        --master spark://spark-master:7077 \
-                        --class org.apache.spark.examples.SparkPi \
-                        --conf spark.jars.ivy=/tmp/.ivy2 \
-                        /opt/bitnami/spark/examples/jars/spark-examples_2.12-*.jar \
-                        10
-                    '''
-                }
-            }
-        }
-
-        stage('Executar Projeto Big Data') {
-            steps {
-                script {
-                    echo "Executando projeto_bigdata.py no Spark..."
-                    sh '''
-                    docker exec spark-master python3 /opt/bitnami/spark/scripts/projeto_bigdata.py
-                    '''
-                }
-            }
-        }
-    }
-
     post {
         always {
             echo "Parando e removendo todos os containers antes da limpeza..."
