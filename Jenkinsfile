@@ -8,7 +8,7 @@ pipeline {
         IMAGE_MYSQL     = "${DOCKER_HUB_USER}/mysql-app"
         IMAGE_FLASK     = "${DOCKER_HUB_USER}/flask-app"
         IMAGE_BACKEND   = "${DOCKER_HUB_USER}/backend-app"
-        // Removido IMAGE_SPARK
+        IMAGE_SPARK     = "${DOCKER_HUB_USER}/spark-app"
     }
 
     stages {
@@ -21,7 +21,7 @@ pipeline {
                     sh "docker build --no-cache -t ${IMAGE_MYSQL}:latest ./mysql"
                     sh "docker build --no-cache -t ${IMAGE_FLASK}:latest ./api"
                     sh "docker build --no-cache -t ${IMAGE_BACKEND}:latest ./backend"
-                    // Removido build do Spark
+                    sh "docker build --no-cache -t ${IMAGE_SPARK}:latest ./spark"
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
                 script {
                     echo "Removendo containers conflitantes..."
                     sh '''
-                    CONTAINERS_TO_REMOVE="mysql_db backend flaskapi frontend grafana prometheus loki"
+                    CONTAINERS_TO_REMOVE="mysql_db spark-master spark-worker backend flaskapi frontend grafana prometheus loki"
                     for c in $CONTAINERS_TO_REMOVE; do
                         if docker ps -a --format '{{.Names}}' | grep -w "$c" > /dev/null; then
                             echo "Removendo container $c"
@@ -44,8 +44,7 @@ pipeline {
                     sh 'docker compose down -v || true'
 
                     echo "Subindo todos os serviços necessários..."
-                    sh 'docker compose up -d db flaskapi backend frontend grafana prometheus loki'
-                    // Removido spark-master e spark-worker
+                    sh 'docker compose up -d db flaskapi backend frontend grafana prometheus loki spark-master spark-worker'
 
                     echo "Aguardando banco de dados ficar pronto..."
                     sh '''
@@ -60,7 +59,15 @@ pipeline {
                     done
                     '''
 
-                    // Removido: aguardar spark-master
+                    echo "Aguardando spark-master estar ativo na porta 7077..."
+                    sh '''
+                    for i in {1..30}; do
+                        nc -z spark-master 7077 && echo "Spark Master está pronto!" && break
+                        echo "Aguardando spark-master ($i/30)..."
+                        sleep 1
+                    done
+                    '''
+
                     echo "MySQL respondeu ao ping. Aguardando 30 segundos extras por segurança..."
                     sh 'sleep 30'
                 }
@@ -77,8 +84,10 @@ pipeline {
                         sh 'docker compose run --rm gerador'
                         echo "Executando processamento R..."
                         sh 'docker compose run --rm rscript'
-                        // Removido execução de script do Spark
-
+                
+                        echo "Executando script Python para gerar gráficos do projeto bigdata..."
+                        sh 'docker compose run --rm spark-master python3 /opt/bitnami/spark/scripts/projeto_bigdata.py'
+                
                         if (i < totalLotes) {
                             echo "Aguardando 3 minutos antes do próximo lote..."
                             sh 'sleep 180'
@@ -88,8 +97,8 @@ pipeline {
             }
         }
 
-        // Removido stage Submit Spark Job
-        // Removido stage Executar Projeto Big Data
+
+   
     }
 
     post {
