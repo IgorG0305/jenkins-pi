@@ -87,7 +87,7 @@ pipeline {
                         sh 'docker compose run --rm rscript'
                 
                         echo "Executando script Python para gerar gráficos do projeto bigdata..."
-                        sh 'sudo docker compose run --rm backend python3 python3 /opt/bitnami/spark/scripts/projeto_bigdata.py'
+                        sh 'docker compose run --rm backend python3 python3 /opt/bitnami/spark/scripts/projeto_bigdata.py'
                 
                         if (i < totalLotes) {
                             echo "Aguardando 3 minutos antes do próximo lote..."
