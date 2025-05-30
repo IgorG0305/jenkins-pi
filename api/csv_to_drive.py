@@ -1,0 +1,26 @@
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from google.oauth2 import service_account
+
+SCOPES = ['https://www.googleapis.com/auth/drive']
+SERVICE_ACCOUNT_FILE = 'pi-do-mal.json'
+FOLDER_ID = '1fZs-W-0ynbHAgtw9AjT5or3WoBxY4QKG'
+
+def upload_csv_para_drive(caminho_csv, nome_arquivo):
+    creds = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    service = build('drive', 'v3', credentials=creds)
+
+    file_metadata = {
+        'name': nome_arquivo,
+        'parents': [FOLDER_ID],
+        'mimeType': 'application/vnd.google-apps.spreadsheet'
+    }
+
+    media = MediaFileUpload(caminho_csv, mimetype='text/csv')
+    file = service.files().create(
+        body=file_metadata,
+        media_body=media,
+        fields='id'
+    ).execute()
+    return file.get('id')
