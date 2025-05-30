@@ -6,6 +6,7 @@ import pandas as pd
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.oauth2 import service_account
+from csv_to_drive import upload_csv_para_drive
 
 app = Flask(__name__)
 
@@ -87,31 +88,16 @@ def exportar_alunos_tratados():
         df = pd.read_sql("SELECT * FROM alunos_tratados", conn)
         conn.close()
 
-        csv_path = "alunos_tratados.csv"
-        df.to_csv(csv_path, index=False)
+        nome_arquivo = "alunos_tratados.csv"
+        caminho_local = os.path.join(os.getcwd(), nome_arquivo)
 
-        SCOPES = ['https://www.googleapis.com/auth/drive']
-        SERVICE_ACCOUNT_FILE = 'pi-do-mal.json'
-        FOLDER_ID = '1fZs-W-0ynbHAgtw9AjT5or3WoBxY4QKG'
+        df.to_csv(caminho_local, index=False)
+        file_id = upload_csv_para_drive(caminho_local, nome_arquivo)
 
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-        service = build('drive', 'v3', credentials=creds)
-
-        file_metadata = {
-            'name': 'alunos_tratados_gsheet',
-            'parents': [FOLDER_ID],
-            'mimeType': 'application/vnd.google-apps.spreadsheet'
-        }
-        media = MediaFileUpload(csv_path, mimetype='text/csv')
-        file = service.files().create(
-            body=file_metadata,
-            media_body=media,
-            fields='id'
-        ).execute()
-
-        return jsonify({'status': 'ok', 'file_id': file.get('id')}), 200
-
+        return jsonify({
+            "mensagem": "Exportado e enviado para o Google Drive com sucesso!",
+            "id_arquivo": file_id
+        })
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
 

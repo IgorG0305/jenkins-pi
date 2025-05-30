@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout()
+    }
+
     environment {
         DOCKER_HUB_USER = 'superlike1'
         IMAGE_GERADOR   = "${DOCKER_HUB_USER}/gerador-app"
@@ -13,20 +17,32 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', 
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/IgorG0305/jenkins-pi.git', 
+                        credentialsId: 'token-github-jenkins' // <-- coloque o ID da sua credencial aqui
+                    ]]
+                ])
+            }
+        }
+
         stage('Preparar chave Google') {
             steps {
                 writeFile file: "${env.WORKSPACE}/pi-do-mal.json", text: '''
 {
   "type": "service_account",
-  "project_id": "pi-do-mal",
-  "private_key_id": "6d762af1dc6af2f9239a30bddba02dbe20099ad4",
-  "private_key": "-----BEGIN PRIVATE KEY-----\\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDOEINK8O9CChgH\\n3fws45oxCVGrbE38f53OQeEQpelC8kJHiiKjt2dIJcZc0AOU2mk18Xb0WZXjQyhb\\nK1RK0at22brO2C4HEVqmSSE4sCfg9IVx7TjFmS2xcry4XAzhdhAeIvLy4PBe6Y/W\\ngZ2SXw0bn6SmuAcPXB39eEg1s1SqrNiKl5Ua+lRY/0yxJ4UVrR+FNHQY8esz8yHW\\nZhQQg2x/MlkOw+TaAYg3zCZ4V9Rt+M7QKtJewOljsSWasDmIPa7Uf2aTuOpK3ZOn\\n76JgESLWVvCnY5OFzwXuvoBahMLA+g/VRvyEUP3+FE48+9uUywqpBODTHHn4az9o\\n/zkuIqLzAgMBAAECggEAGmmoGo6qwaE/lp/lN0UZOi3X8mFt1u6YpfEbIyImYGFj\\nDikY6uPoRil+tTN93LI+MsmM63chgkF/xmfVucgJnVtShDmAyivMSGzZPZs+u/6R\\nAvBa4DZpJ/SYAggyfSJqoHeZrSNt9rcjVmXDcm6NOebgQ5+/r+qpIW3Ye6Giju8L\\nr8Fki4VYJuEjFwD37mBYwV4LQwrHk4SFWWyTXQDgE8wazxG9gKG6zsfRtHGCus5O\\n1xAAXdaeI9pErfp1kI6+Gnr9VxV+EUqAdlCmtmGHA9OU7iDaeKGRwF0uI72TZf/O\\nNa00HZT3QscdCoKdnC0GbRoaxEndhGLx6F5Rq3+e6QKBgQD64RxN4BjzZakHSoWM\\nCVTGxSdA/8dGNglNJs1Bb+HDY78GfSIxCajEMADSi0AtWgYqy/sUOR/Tl/KDpCZi\\ngeDzta3nnSsXI3xZpTmwbFpmAn5Sv4hVhkVsNTy6goEm3v/l+RsRPq9+EMsSat4E\\neoYJ/8+71wbpO0Gd3qdpyoF8tQKBgQDSRTyczm73HUBpS9AdK78F5b684htwX3DH\\nL+tTND655hVPHrGaYuoGzk86pOvLO18CpnNFvC0WfhzIvXHEuqxfVUY4eOPz4WG4\\nwvlTEIvGsM1UAz/2yzslbyPQMpL4GlG40EtGInXS3gbqXMnGw6Pp7tOmGvoNah/h\\nVdZ+UjWSBwKBgB7Xt/wW9dpOgDZGQh7SMtrw9/90spH+KKyUfZ1y3MWBqMVqct6m\\neloMML2xouUwcRun0ilNUI1Z29W1Q4bOwtITXtrfpqGEmlAHEQ2QdJif69nOdDtX\\nc4d3EA056BjYR4uFUX+QPlD4TY7pFnxkd8AY8/f62n2n7Ew1SE2oOL0VAoGAGZ21\\ntKSxgAlgP3Os9uDNdLp4cipZjWcTJjEASjKjMaKGFg13NYe3WvznSg2tbCTffkMo\\n5+X02Dik6Q+rPHxBY5vP4jFYE+3xKcEW/reVT69aVFHRCQ/ZNMZFZqfCn9cU/Z7i\\njLjGAdpqnUKQklZjMayWvDWtINU87Qa4CsuZGyECgYBBGIaoYKm3KjMrfrbtKpdK\\nPYnHcjDg3OSwy3RFOot2pm3LkWIOmCkqXWjttLahXaAF/SSM432R09gy8NEN8rZo\\nNZnJfENQKFlWb3+TviSXXlsB+usmKn82HHYZd95B7xudnFOU/+bqDXw0EmtXq3d0\\noM6Se4uj4lPcrlex3D6Vhg==\\n-----END PRIVATE KEY-----\\n",
-  "client_email": "marcelo-malefico@pi-do-mal.iam.gserviceaccount.com",
-  "client_id": "104162948907990984092",
+  "project_id": "pi-data-science",
+  "private_key_id": "78187599b4b50731b1964dd152f56b07b6f4e69d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDEVNKlzV8eNoiF\nF2/JsVkx6TsqzxYMyf+Ljyitalol4etxNab40EMBcR2lAmM6Yo2V7R57CcnhCSVD\nOppn4Z+3u5XDrBFbz7pKiKpKZ8lxcgABu2CE8fvhDTRcXhNtlRc4C0M7PU1L6miG\ndJ6vCaw4HCl1LEV73ROL4kiaGXV3GZdttwuzhjhv9wSkqg8mlWTh2p+ba1N+ELKD\nZLVqnFgjdveG91rky6UOB/0Ah0LAmqucvRnEmkG5DVvqqjSm9UchdPD4QlZYOGS8\nHr0UOZpnuvhVmWnkfevofHdGaQ3qJ8b1q806fLp5aQYvcPGNdNJa2pl++LsBDzyg\nHr7MNlWxAgMBAAECggEAFzJLFcePNUjN1iUVPPglE4u8xQuPouDbk7fNNLlhP6Lo\nMvQwWgBykkE09pyIGyCuyCfVF0YU90TMhXDEnSvKt6YZr/NCCnN0zWlFRCJBaj5v\nuBn/8Y/iVHjqFqm6KOiEbvI3C3uW3jaACrbM/YhVM+dGkgSyNvbBYEsoNyYf5fty\nVcWoR7ZRBUCVUAUCfrSPW6jISAzsAOXdRt1DvSd/I/tAR847VZHRYDgfNTWALblg\nKAVoARLGyBWlCvICgl2/0pMPsNit6KUhhFaZwLQYJ6XzP67bRMm3AHEkFs6ZI0u2\n/1bnJxFKm9i1/8uNoWI7VUHs6TJOxh6gVXseZ6vzCwKBgQD30wodtJK2r9tiy8OF\n/XseISDlKFtYqdYnatSCfwU1DLiZ51ePrBX1HAT9n1jR2lJORQsSj9JX3EOT5m+/\nP/by/njMynKMH9hl8mXSEJ1HPLTov7V3wLTGzjDQYiCP9CzQoJ5fRmoyURIkd1J4\nFxrIi2N7EMmit4WQqSdzA06FUwKBgQDKzuhDHH5vKBf6DqXRTfE3r6UHQEo3N1RA\n+zKnXBcvZ6o9O4T0UWKRM9kbDVYXQzuoDcHML80olw2Y2ff31WvJ6xImxZWZUpuf\nJdl91GuoW/qIB4IKpmlx0nFeUts7Pa3Jhtc5wBtydY9tZeCGfZdZW0SYcINY61Dp\nj2Fy77l0awKBgQCbM6SLM/IJzRpUxg1+FWAMX2ztdpe2cC544xORYiENtxjI8bPJ\ne1kI9vI9L5T9X3/aGq0zg7SUZ5I+xrrHCDUMusdGYabZEHyCZArWQqds3JzjgmQQ\nSjQsqSay6jFAVgfW5DAqtLt/JXx6L+wK31VbsMetY7cTW2GfVgAprDF5lwKBgG60\nbvhjT2jh2+S1pjIQd8HL8St6HojxfN5TwJy2mjlYPwdZvAOZgVJ9mN85cmsUWjYr\n/EO3PCgR/GwZX1A7gbEgzjG33SdqfmRrRsN29qVaP/GNF6E0oY5uL1ArrlwyGPFO\n16FAijr6jSZMXDlNyRYPyevkTu501SAJEkqpLPStAoGBAOAcyGc1Xs+p0GqqQYVB\nX6rhnHG6eNbzit+P7STh2eg69ytvF3bpZfRRtXji/+FS+00YIiT2JN82xz14RqNz\nwwAyAjNkoaLNP1uNiMdmgwt/0aJXXaPvzDs2mRHrwAWCzRycI0PHvv0jEKYskpUY\nErRZFio+UD33J0N6dEda4M7Q\n-----END PRIVATE KEY-----\n",
+  "client_email": "drive-access-service@pi-data-science.iam.gserviceaccount.com",
+  "client_id": "112039530445888045376",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
   "token_uri": "https://oauth2.googleapis.com/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/marcelo-malefico%40pi-do-mal.iam.gserviceaccount.com",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/drive-access-service%40pi-data-science.iam.gserviceaccount.com",
   "universe_domain": "googleapis.com"
 }
 '''
