@@ -37,6 +37,8 @@ services:
         condition: service_healthy
     networks:
       - app_net
+    volumes:
+      - ./caminho/para/pi-do-mal.json:/app/pi-do-mal.json
 
   db:
     image: mysql:8.0
