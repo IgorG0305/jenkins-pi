@@ -38,7 +38,7 @@ services:
     networks:
       - app_net
     volumes:
-      - ./home/olivia-linux/Documentos/jenkins-pi/api/pi-do-mal.json:/app/pi-do-mal.json
+      - /home/olivia-linux/Documentos/jenkins-pi/api/pi-do-mal.json:/app/pi-do-mal.json
   db:
     image: mysql:8.0
     container_name: mysql_db
@@ -107,6 +107,7 @@ volumes:
   db_data:
   grafana_data:
   loki_data:
+      
 
 networks:
   app_net:
