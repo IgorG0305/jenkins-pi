@@ -3,7 +3,6 @@ from googleapiclient.http import MediaFileUpload
 from google.oauth2 import service_account
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
-SERVICE_ACCOUNT_FILE = 'pi-data-science.json'
 FOLDER_ID = '1pp8wXoa0r-BA2OKiYP0dOOQA3yyZ28hn'
 
 def upload_csv_para_drive(caminho_csv, nome_arquivo):
