@@ -4,11 +4,6 @@ from google.oauth2 import service_account
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
 SERVICE_ACCOUNT_FILE = "pi-data-science.json"
-SERVICE_ACCOUNT_FILE['project_id'] = SERVICE_ACCOUNT_FILE['project_id'].split('?')[0]
-SERVICE_ACCOUNT_FILE['private_key_id'] = SERVICE_ACCOUNT_FILE['private_key_id'].split('?')[0]
-SERVICE_ACCOUNT_FILE['private_key'] = SERVICE_ACCOUNT_FILE['private_key'].split('*')[0]
-SERVICE_ACCOUNT_FILE['client_email'] = SERVICE_ACCOUNT_FILE['client_email'].split('*')[0]
-
 FOLDER_ID = '1pp8wXoa0r-BA2OKiYP0dOOQA3yyZ28hn'
 
 def upload_csv_para_drive(caminho_csv, nome_arquivo):
