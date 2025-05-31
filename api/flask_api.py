@@ -2,6 +2,12 @@ from flask import Flask, request, jsonify
 import mysql.connector
 from mysql.connector import Error
 import time
+import pandas as pd
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from google.oauth2 import service_account
+from csv_to_drive import upload_csv_para_drive
+import os
 
 app = Flask(__name__)
 
@@ -26,7 +32,7 @@ def tentar_conectar():
     print("Não foi possível conectar ao banco de dados após 10 tentativas. Encerrando...")
     exit(1)
 
-# Testar conexão antes de iniciar a API
+# Chama a função para testar conexão antes de iniciar a API
 tentar_conectar()
 
 @app.route('/ping', methods=['GET'])
@@ -59,7 +65,6 @@ def listar_alunos_tratados():
     except Error as e:
         return jsonify({'erro': str(e)}), 500
 
-
 @app.route('/alunos', methods=['POST'])
 def adicionar_aluno():
     dados = request.get_json()
@@ -75,6 +80,26 @@ def adicionar_aluno():
         conn.close()
         return jsonify({"mensagem": "Aluno inserido com sucesso!"}), 201
     except Error as e:
+        return jsonify({'erro': str(e)}), 500
+
+@app.route('/exportar_alunos_tratados', methods=['GET'])
+def exportar_alunos_tratados():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        df = pd.read_sql("SELECT * FROM alunos_tratados", conn)
+        conn.close()
+
+        nome_arquivo = "alunos_tratados.csv"
+        caminho_local = os.path.join(os.getcwd(), nome_arquivo)
+
+        df.to_csv(caminho_local, index=False)
+        file_id = upload_csv_para_drive(caminho_local, nome_arquivo)
+
+        return jsonify({
+            "mensagem": "Exportado e enviado para o Google Drive com sucesso!",
+            "id_arquivo": file_id
+        })
+    except Exception as e:
         return jsonify({'erro': str(e)}), 500
 
 if __name__ == '__main__':

@@ -37,7 +37,8 @@ services:
         condition: service_healthy
     networks:
       - app_net
-
+    volumes:
+      - /home/olivia-linux/Documentos/jenkins-pi/api/pi-do-mal.json:/app/pi-do-mal.json
   db:
     image: mysql:8.0
     container_name: mysql_db
@@ -83,7 +84,7 @@ services:
   loki:
     image: grafana/loki:2.8.2
     ports:
-      - "9051:9091"
+      - "9053:9091"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - loki_data:/var/lib/loki
@@ -93,7 +94,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9030:9030"
+      - "9040:9030"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command:
@@ -101,38 +102,12 @@ services:
     networks:
       - app_net
 
-  spark-master:
-    image: apache/spark:latest
-    container_name: spark-master
-    environment:
-      - SPARK_MODE=master
-      - HOME=/tmp         
-    ports:
-      - "7077:7077"
-      - "9080:9080"
-    networks:
-      - app_net
-
-  spark-worker:
-    build:
-      context: ./spark
-      dockerfile: Dockerfile
-    container_name: spark-worker
-    depends_on:
-      - spark-master
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - HOME=/tmp          
-    ports:
-      - "8081:8081"
-    networks:
-      - app_net
 
 volumes:
   db_data:
   grafana_data:
   loki_data:
+      
 
 networks:
   app_net:
