@@ -111,7 +111,7 @@ pipeline {
                         sh 'docker compose run --rm rscript'
                         echo "Acionando API Flask para exportar e enviar dados para o Drive..."
                         sh '''
-                        RESPONSE=$(curl -s -w "\\n%{http_code}" http://localhost:5051/exportar_alunos_tratados)
+                        RESPONSE=$(curl -s -w "\\n%{http_code}" -X POST -H "Content-Type: application/json" -d '{"caminho_csv": "alunos_tratados.csv", "nome_arquivo": "alunos_tratados_gsheet"}' http://localhost:5051/exportar_alunos_tratados)
                         BODY=$(echo "$RESPONSE" | head -n1)
                         CODE=$(echo "$RESPONSE" | tail -n1)
                         if [ "$CODE" = "200" ]; then

@@ -48,6 +48,7 @@ def upload_csv_para_drive(caminho_csv, nome_arquivo):
             'parents': [FOLDER_ID],
             'mimeType': 'application/vnd.google-apps.spreadsheet'
         }
+        
         novo_arquivo = service.files().create(
             body=file_metadata,
             media_body=media,
