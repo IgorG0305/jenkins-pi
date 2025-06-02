@@ -64,7 +64,15 @@ if (nrow(dados) > 0) {
   }
 
   limpar_cursos = function(dados) {
+    if(nrow(dados) == 0) {
+      warning("Nenhum dado para limpar.")
+      return(dados)
+    }
+
+    colnames(dados) = tolower(colnames(dados))
+
     dados$curso = as.character(dados$curso)
+
     insercoes = c("Administração", "Direito", "Engenharia", "Pedagogia", "Psicologia", "Engenharia Civil", "Engenharia Elétrica",
                    "Engenharia Mecânica", "Engenharia de Produção", "Arquitetura e Urbanismo", "Medicina", "Enfermagem",
                    "Biomedicina", "Educação Física", "Fisioterapia", "Odontologia", "Farmácia", "Veterinária", "Nutrição",
