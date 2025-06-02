@@ -64,11 +64,6 @@ if (nrow(dados) > 0) {
   }
 
   limpar_cursos = function(dados) {
-    if(nrow(dados) == 0) {
-      warning("Nenhum dado para limpar.")
-      return(dados)
-    }
-
     colnames(dados) = tolower(colnames(dados))
 
     dados$curso = as.character(dados$curso)
@@ -86,16 +81,16 @@ if (nrow(dados) > 0) {
                    "Secretariado Executivo", "Turismo", "Hotelaria", "Ciências Sociais", "Estatística", "Biblioteconomia",
                    "Museologia", "Educação Especial", "Segurança do Trabalho", "Radiologia")
     
-    valores_invalidos <- grepl("@|\\d|\\$|concluido|alguns|veteri|WEWEO", dados$Curso, ignore.case = TRUE) | dados$Curso == "" | is.na(dados$Curso)
-    dados$Curso[valores_invalidos] <- NA
+    valores_invalidos <- grepl("@|\\d|\\$|concluido|alguns|veteri|WEWEO", dados$curso, ignore.case = TRUE) | dados$curso == "" | is.na(dados$curso)
+    dados$curso[valores_invalidos] <- NA
     
-    na_indices <- which(is.na(dados$Curso))
+    na_indices <- which(is.na(dados$curso))
     num_na <- length(na_indices)
     
     if (num_na > 0) {
       
       cursos_para_inserir <- rep(insercoes, length.out = num_na)
-      dados$Curso[na_indices] <- cursos_para_inserir
+      dados$curso[na_indices] <- cursos_para_inserir
     }
     
     return(dados)
