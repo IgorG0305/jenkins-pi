@@ -153,6 +153,8 @@ if (nrow(dados) > 0) {
       moda_estado_civil = names(tbl)[which.max(tbl)]
       dados$estado_civil[is.na(dados$estado_civil)] = moda_estado_civil
     }
+
+    return(dados)
   }
 
   # Substituir strings vazias por NA
