@@ -81,16 +81,16 @@ if (nrow(dados) > 0) {
                    "Secretariado Executivo", "Turismo", "Hotelaria", "Ciências Sociais", "Estatística", "Biblioteconomia",
                    "Museologia", "Educação Especial", "Segurança do Trabalho", "Radiologia")
     
-    valores_invalidos <- grepl("@|\\d|\\$|concluido|alguns|veteri|WEWEO", dados$curso, ignore.case = TRUE) | dados$curso == "" | is.na(dados$curso)
-    dados$curso[valores_invalidos] <- NA
+    valores_invalidos = grepl("@|\\d|\\$|concluido|alguns|veteri|WEWEO", dados$curso, ignore.case = TRUE) | dados$curso == "" | is.na(dados$curso)
+    dados$curso[valores_invalidos] = NA
     
-    na_indices <- which(is.na(dados$curso))
-    num_na <- length(na_indices)
+    na_indices = which(is.na(dados$curso))
+    num_na = length(na_indices)
     
     if (num_na > 0) {
       
-      cursos_para_inserir <- rep(insercoes, length.out = num_na)
-      dados$curso[na_indices] <- cursos_para_inserir
+      cursos_para_inserir = rep(insercoes, length.out = num_na)
+      dados$curso[na_indices] = cursos_para_inserir
     }
     
     return(dados)
@@ -134,7 +134,7 @@ if (nrow(dados) > 0) {
   }
 
   limpar_estado_civil = function(dados) {
-    dados$estado_civil = tolower(trimws(dados$estado_civil))
+    dados$estado_civil = tolower(trimws(as.character(dados$estado_civil)))
     
     valores_invalidos = c("", "xw0s2#$@43", "naoencontrado", "xxxoxo0", "error", NA)
     
@@ -146,11 +146,13 @@ if (nrow(dados) > 0) {
     
     dados$estado_civil[dados$estado_civil %in% valores_invalidos | !dados$estado_civil %in% c("solteiro", "casado", "divorciado", "viuvo")] = NA
     
-    moda_estado_civil <- names(sort(table(dados$estado_civil), decreasing = TRUE))[1]
-    
-    dados$estado_civil[is.na(dados$estado_civil)] <- moda_estado_civil
-    
-    return(dados)
+    tbl = table(dados$estado_civil)
+    if (length(tbl) == 0) {
+      warning("Não há dados suficientes para aplicar o rateio proporcional em estado civil.")
+    } else {
+      moda_estado_civil = names(tbl)[which.max(tbl)]
+      dados$estado_civil[is.na(dados$estado_civil)] = moda_estado_civil
+    }
   }
 
   # Substituir strings vazias por NA
