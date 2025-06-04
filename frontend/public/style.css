@@ -75,30 +75,64 @@ nav a:hover {
 
 /* Hero */
 .hero {
-  background: linear-gradient(to right, #007acc, #004d7a);
-  color: #fff;
-  padding: 80px 0;
+  position: relative;
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("img/banner-educacao.jpg") center/cover no-repeat;
+  filter: blur(2px);
+  z-index: 1;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.1); /* camada clara opcional */
+}
+
+
+.hero .overlay {
+  background-color: rgba(255, 255, 255, 0.6); /* escurece para garantir contraste */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero .container {
+  position: relative;
+  z-index: 3;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  max-width: 900px;
 }
 
 .hero h2 {
-  font-size: 36px;
-  margin-bottom: 15px;
+  font-size: 42px;
+  margin-bottom: 20px;
 }
 
 .hero p {
-  font-size: 18px;
-  max-width: 700px;
-  margin: 0 auto 30px auto;
+  font-size: 20px;
 }
 
-.hero-image {
-  margin-top: 20px;
-  width: 80%;
-  max-width: 700px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
 
 /* Info Section */
 .info {
@@ -170,6 +204,151 @@ nav a:hover {
   max-width: 700px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+
+/* Seção Como Funciona */
+.metodo {
+  background-color: #ffffff;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.metodo h3 {
+  font-size: 28px;
+  margin-bottom: 40px;
+  color: #004d7a;
+}
+
+.etapas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.etapa {
+  background-color: #f0f0f0;
+  padding: 25px;
+  border-radius: 12px;
+  width: 300px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.etapa:hover {
+  transform: translateY(-5px);
+}
+
+.etapa h4 {
+  font-size: 20px;
+  color: #004d7a;
+  margin-bottom: 10px;
+}
+
+.etapa p {
+  font-size: 16px;
+  color: #333;
+}
+
+.etapa .icon {
+  font-size: 36px;
+  margin-bottom: 15px;
+  color: #004d7a;
+}
+
+/* Seção Impacto */
+.impacto {
+  background-color: #e6f0f8;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.impacto h3 {
+  font-size: 28px;
+  margin-bottom: 40px;
+  color: #004d7a;
+}
+
+.metricas {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.metrica {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 220px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.metrica h4 {
+  font-size: 32px;
+  color: #007acc;
+  margin-bottom: 10px;
+}
+
+.metrica p {
+  font-size: 16px;
+  color: #333;
+}
+
+/* Seção Depoimentos */
+.depoimentos {
+  background-color: #ffffff;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.depoimentos h3 {
+  font-size: 28px;
+  margin-bottom: 40px;
+  color: #004d7a;
+}
+
+.comentarios {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.comentarios blockquote {
+  background-color: #f9f9f9;
+  padding: 25px;
+  border-radius: 12px;
+  width: 400px;
+  font-style: italic;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.comentarios cite {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* Seção Contato */
+.contato {
+  background-color: #e6f0f8;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.contato h3 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #004d7a;
+}
+
+.contato p {
+  font-size: 18px;
+  color: #333;
 }
 
 /* Footer */
