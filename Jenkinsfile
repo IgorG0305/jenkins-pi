@@ -12,6 +12,7 @@ pipeline {
         IMAGE_MYSQL     = "${DOCKER_HUB_USER}/mysql-app"
         IMAGE_FLASK     = "${DOCKER_HUB_USER}/flask-app"
         IMAGE_BACKEND   = "${DOCKER_HUB_USER}/backend-app"
+        IMAGE_FRONTEND   = "${DOCKER_HUB_USER}/frontend-app"
         GOOGLE_KEY_PATH = '/home/olivia-linux/Documentos/jenkins-pi/api/pi-do-mal.json'
         WORKSPACE_KEY_PATH = 'pi-do-mal.json'
     }
