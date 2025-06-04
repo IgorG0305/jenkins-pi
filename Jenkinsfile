@@ -60,6 +60,7 @@ pipeline {
                     sh "docker build --no-cache -t ${IMAGE_MYSQL}:latest ./mysql"
                     sh "docker build --no-cache -t ${IMAGE_FLASK}:latest ./api"
                     sh "docker build --no-cache -t ${IMAGE_BACKEND}:latest ./backend"
+                    sh "docker build --no-cache -t ${IMAGE_FRONTEND}:latest ./frontend"
                 }
             }
         }
