@@ -1,3 +1,30 @@
+/* Logo */
+.logo {
+  height: 60px;
+  margin-right: 20px;
+}
+
+/* Header Flex Container */
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .logo {
+    margin: 0 auto 20px;
+    display: block;
+  }
+
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+
 * {
   margin: 0;
   padding: 0;
@@ -6,9 +33,9 @@
 
 body {
   font-family: 'Roboto', sans-serif;
-  line-height: 1.6;
   background-color: #f9f9f9;
   color: #333;
+  line-height: 1.6;
 }
 
 .container {
@@ -25,8 +52,8 @@ header {
 }
 
 header h1 {
+  font-size: 32px;
   margin-bottom: 10px;
-  font-size: 28px;
 }
 
 nav ul {
@@ -46,7 +73,7 @@ nav a:hover {
   color: #ffcc00;
 }
 
-/* Hero Section */
+/* Hero */
 .hero {
   background: linear-gradient(to right, #007acc, #004d7a);
   color: #fff;
@@ -61,21 +88,16 @@ nav a:hover {
 
 .hero p {
   font-size: 18px;
-  margin-bottom: 30px;
+  max-width: 700px;
+  margin: 0 auto 30px auto;
 }
 
-.btn {
-  background-color: #ffcc00;
-  color: #004d7a;
-  padding: 12px 24px;
-  font-weight: bold;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: background-color 0.3s;
-}
-
-.btn:hover {
-  background-color: #e6b800;
+.hero-image {
+  margin-top: 20px;
+  width: 80%;
+  max-width: 700px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* Info Section */
@@ -104,6 +126,7 @@ nav a:hover {
   width: 300px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s;
+  text-align: center;
 }
 
 .card:hover {
@@ -111,9 +134,42 @@ nav a:hover {
 }
 
 .card h4 {
-  margin-bottom: 10px;
   font-size: 20px;
   color: #004d7a;
+  margin-bottom: 10px;
+}
+
+.icon {
+  font-size: 40px;
+  color: #004d7a;
+  margin-bottom: 15px;
+}
+
+/* Solução Section */
+.solucao {
+  background-color: #e6f0f8;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.solucao h3 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #004d7a;
+}
+
+.solucao p {
+  max-width: 800px;
+  margin: 0 auto 30px;
+  font-size: 18px;
+  color: #333;
+}
+
+.solution-image {
+  width: 80%;
+  max-width: 700px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* Footer */
